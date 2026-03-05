@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C#: Moutons",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}\\Moutons.csproj",
+            "launchConfigurationId": "TargetFramework=;Moutons",
+            "windows":{
+                "console": "integratedTerminal",
+            }
+        }
+    ]
+}
