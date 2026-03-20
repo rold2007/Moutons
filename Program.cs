@@ -1,21 +1,38 @@
 ﻿using Spectre.Console;
 
-var canvas = new Canvas(100, 48);
+Canvas canvas = new Canvas(100, 48);
+// UNDONE Use the statusbar to show the player health and the FPS
+Text statusbar = new Text("Use arrow keys to move the sheep. Press ESC to exit.")
+    .Centered();
 
 canvas.Scale = false;
 canvas.PixelWidth = 2;
 
-// UNDONE Add a status bar
-AnsiConsole.Live(canvas)
+Layout layout = new Layout("Root")
+    .SplitRows(
+        new Layout("Top").Size(1),
+        new Layout("Bottom"));
+
+layout["Top"].Update(statusbar);
+layout["Bottom"].Update(canvas);
+
+AnsiConsole.Live(layout)
     .Start(ctx =>
     {
        System.Drawing.Point sheepPosition = new System.Drawing.Point(1, 1);
        System.Drawing.Point previousSheepPosition = sheepPosition;
+       bool restorelayout = false;
 
        while (true)
        {
           if (AnsiConsole.Console.Profile.Width >= canvas.Width && AnsiConsole.Console.Profile.Height >= canvas.Height)
           {
+             if (restorelayout)
+             {
+                ctx.UpdateTarget(layout);
+                restorelayout = false;
+             }
+
              // Fill background
              // UNDONE Move this to a library outside the UI
              for (var x = 0; x < canvas.Width; x++)
@@ -35,13 +52,12 @@ AnsiConsole.Live(canvas)
           }
           else
           {
-             // clear screen
-             // UNDONE
+             // TODO Detect if the game just started and pause the game loop until the window is resized to the correct size
+             ctx.UpdateTarget(new Text("Console window is too small. Maximize the window."));
+             restorelayout = true;
           }
 
           ctx.Refresh();
-          // UNDONE Remove this sleep
-          //Thread.Sleep(1000);
 
           if (AnsiConsole.Console.Input.IsKeyAvailable())
           {
@@ -53,7 +69,7 @@ AnsiConsole.Live(canvas)
              }
              else
              {
-                switch(key?.Key)
+                switch (key?.Key)
                 {
                    case ConsoleKey.LeftArrow:
                       previousSheepPosition = sheepPosition;
