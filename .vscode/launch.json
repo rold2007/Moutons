@@ -8,7 +8,7 @@
             "projectPath": "${workspaceFolder}\\Moutons.csproj",
             "launchConfigurationId": "TargetFramework=;Moutons",
             "windows":{
-                "console": "integratedTerminal",
+                "console": "externalTerminal",
             }
         }
     ]
