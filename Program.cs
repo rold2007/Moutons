@@ -2,7 +2,6 @@
 using Spectre.Console;
 
 Canvas canvas = new Canvas(100, 48);
-// UNDONE Use the statusbar to show the player health
 Text statusbar = new Text("Use arrow keys to move the sheep. Press ESC to exit.")
     .Centered();
 
@@ -26,6 +25,8 @@ AnsiConsole.Live(layout)
        Stopwatch timer = Stopwatch.StartNew();
        int frameCount = 0;
        long startElapsedMilliseconds = 0;
+       int health = 100;
+       long lastHealthDecreaseMilliseconds = 0;
 
        while (true)
        {
@@ -39,16 +40,23 @@ AnsiConsole.Live(layout)
 
              frameCount++;
 
-             long elapsedMilliseconds = timer.ElapsedMilliseconds - startElapsedMilliseconds; 
+             long elapsedMilliseconds = timer.ElapsedMilliseconds - startElapsedMilliseconds;
 
              if (elapsedMilliseconds > 100)
              {
                 int fps = (int)Math.Round(frameCount / (elapsedMilliseconds / 1000.0));
 
-                layout["Top"].Update(new Text(fps.ToString() + " FPS").Centered());
+                // TODO Replaced health text to progress bar with colors (red, yellow, green))
+                layout["Top"].Update(new Text($"Health: {health} | {fps} FPS").Centered());
 
                 frameCount = 0;
                 startElapsedMilliseconds = timer.ElapsedMilliseconds;
+             }
+
+             if (elapsedMilliseconds - lastHealthDecreaseMilliseconds >= 3000)
+             {
+                health = Math.Max(0, health - 1);
+                lastHealthDecreaseMilliseconds = elapsedMilliseconds;
              }
 
              // Fill background
