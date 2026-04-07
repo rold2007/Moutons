@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
+﻿using GameEngine;
 using Spectre.Console;
+using System.Diagnostics;
 
 Canvas canvas = new Canvas(100, 48);
 Text statusbar = new Text("Use arrow keys to move the sheep. Press ESC to exit.")
@@ -27,7 +28,9 @@ AnsiConsole.Live(layout)
        long startElapsedMilliseconds = 0;
        int health = 100;
        long lastHealthDecreaseMilliseconds = 0;
+       DisplayBuffer displayBuffer = new DisplayBuffer(canvas.Width, canvas.Height);
 
+       // HACK Using a text cursor indicator (Settings->Accessibility->Text cursor) makes the cursor visible and moving at each refresh. Find a way to hide the cursor. There is no easy way. Keep it as is for now.
        while (true)
        {
           if (AnsiConsole.Console.Profile.Width >= canvas.Width && AnsiConsole.Console.Profile.Height >= canvas.Height)
@@ -59,22 +62,21 @@ AnsiConsole.Live(layout)
                 lastHealthDecreaseMilliseconds = elapsedMilliseconds;
              }
 
-             // Fill background
-             // UNDONE Move this to a library outside the UI
+             // UNDONE Simplify this logic to only update the pixels that changed instead of redrawing the entire canvas every frame
+             displayBuffer.Clear(Color.Black);
+             displayBuffer.DrawBorders(Color.Gray19);
+
+             displayBuffer.SetPixel(previousSheepPosition.X, previousSheepPosition.Y, Color.Black);
+             displayBuffer.SetPixel(sheepPosition.X, sheepPosition.Y, Color.White);
+
+             // Copy display buffer to canvas
              for (var x = 0; x < canvas.Width; x++)
              {
-                canvas.SetPixel(x, 0, Color.Gray19);
-                canvas.SetPixel(x, canvas.Height - 1, Color.Gray19);
+                for (var y = 0; y < canvas.Height; y++)
+                {
+                   canvas.SetPixel(x, y, displayBuffer.GetPixel(x, y));
+                }
              }
-
-             for (var y = 1; y < canvas.Height; y++)
-             {
-                canvas.SetPixel(0, y, Color.Gray19);
-                canvas.SetPixel(canvas.Width - 1, y, Color.Gray19);
-             }
-
-             canvas.SetPixel(previousSheepPosition.X, previousSheepPosition.Y, Color.Black);
-             canvas.SetPixel(sheepPosition.X, sheepPosition.Y, Color.White);
           }
           else
           {
@@ -118,3 +120,56 @@ AnsiConsole.Live(layout)
           }
        }
     });
+
+namespace GameEngine
+{
+   public class DisplayBuffer
+   {
+      private Color[,] buffer;
+      public int Width { get; }
+      public int Height { get; }
+
+      public DisplayBuffer(int width, int height)
+      {
+         Width = width;
+         Height = height;
+         buffer = new Color[width, height];
+      }
+
+      public void SetPixel(int x, int y, Color color)
+      {
+         buffer[x, y] = color;
+      }
+
+      public Color GetPixel(int x, int y)
+      {
+         return buffer[x, y];
+      }
+
+      public void DrawBorders(Color borderColor)
+      {
+         for (var x = 0; x < Width; x++)
+         {
+            SetPixel(x, 0, borderColor);
+            SetPixel(x, Height - 1, borderColor);
+         }
+
+         for (var y = 1; y < Height; y++)
+         {
+            SetPixel(0, y, borderColor);
+            SetPixel(Width - 1, y, borderColor);
+         }
+      }
+
+      public void Clear(Color clearColor)
+      {
+         for (var x = 0; x < Width; x++)
+         {
+            for (var y = 0; y < Height; y++)
+            {
+               SetPixel(x, y, clearColor);
+            }
+         }
+      }
+   }
+}
