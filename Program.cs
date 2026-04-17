@@ -28,7 +28,7 @@ AnsiConsole.Live(layout)
        long startElapsedMilliseconds = 0;
        int health = 100;
        long lastHealthDecreaseMilliseconds = 0;
-       DisplayBuffer displayBuffer = new DisplayBuffer(canvas.Width, canvas.Height);
+       GameRenderer renderer = new GameRenderer(canvas.Width, canvas.Height);
 
        // HACK Using a text cursor indicator (Settings->Accessibility->Text cursor) makes the cursor visible and moving at each refresh. Find a way to hide the cursor. There is no easy way. Keep it as is for now.
        while (true)
@@ -63,18 +63,14 @@ AnsiConsole.Live(layout)
              }
 
              // UNDONE Simplify this logic to only update the pixels that changed instead of redrawing the entire canvas every frame
-             displayBuffer.Clear(Color.Black);
-             displayBuffer.DrawBorders(Color.Gray19);
-
-             displayBuffer.SetPixel(previousSheepPosition.X, previousSheepPosition.Y, Color.Black);
-             displayBuffer.SetPixel(sheepPosition.X, sheepPosition.Y, Color.White);
+             renderer.Render(sheepPosition, previousSheepPosition);
 
              // Copy display buffer to canvas
              for (var x = 0; x < canvas.Width; x++)
              {
                 for (var y = 0; y < canvas.Height; y++)
                 {
-                   canvas.SetPixel(x, y, displayBuffer.GetPixel(x, y));
+                   canvas.SetPixel(x, y, renderer.Buffer.GetPixel(x, y));
                 }
              }
           }
@@ -146,21 +142,6 @@ namespace GameEngine
          return buffer[x, y];
       }
 
-      public void DrawBorders(Color borderColor)
-      {
-         for (var x = 0; x < Width; x++)
-         {
-            SetPixel(x, 0, borderColor);
-            SetPixel(x, Height - 1, borderColor);
-         }
-
-         for (var y = 1; y < Height; y++)
-         {
-            SetPixel(0, y, borderColor);
-            SetPixel(Width - 1, y, borderColor);
-         }
-      }
-
       public void Clear(Color clearColor)
       {
          for (var x = 0; x < Width; x++)
@@ -170,6 +151,40 @@ namespace GameEngine
                SetPixel(x, y, clearColor);
             }
          }
+      }
+   }
+
+   public class GameRenderer
+   {
+      private DisplayBuffer buffer;
+      public DisplayBuffer Buffer => buffer;
+
+      public GameRenderer(int width, int height)
+      {
+         buffer = new DisplayBuffer(width, height);
+      }
+
+      public void DrawBorders(Color borderColor)
+      {
+         for (var x = 0; x < buffer.Width; x++)
+         {
+            buffer.SetPixel(x, 0, borderColor);
+            buffer.SetPixel(x, buffer.Height - 1, borderColor);
+         }
+
+         for (var y = 1; y < buffer.Height; y++)
+         {
+            buffer.SetPixel(0, y, borderColor);
+            buffer.SetPixel(buffer.Width - 1, y, borderColor);
+         }
+      }
+
+      public void Render(System.Drawing.Point sheepPosition, System.Drawing.Point previousSheepPosition)
+      {
+         buffer.Clear(Color.Black);
+         DrawBorders(Color.Gray19);
+         buffer.SetPixel(previousSheepPosition.X, previousSheepPosition.Y, Color.Black);
+         buffer.SetPixel(sheepPosition.X, sheepPosition.Y, Color.White);
       }
    }
 }
