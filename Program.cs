@@ -2,12 +2,13 @@
 using Spectre.Console;
 using System.Diagnostics;
 
+AnsiConsole.Console.Profile.Capabilities.Unicode = false;
+
 Canvas canvas = new Canvas(100, 48);
 Text statusbar = new Text("Use arrow keys to move the sheep. Press ESC to exit.")
     .Centered();
 
 canvas.Scale = false;
-canvas.PixelWidth = 2;
 
 Layout layout = new Layout("Root")
     .SplitRows(
