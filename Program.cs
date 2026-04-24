@@ -47,9 +47,10 @@ AnsiConsole.Live(layout)
 
              frameCount++;
 
-             long elapsedMilliseconds = timer.ElapsedMilliseconds - startElapsedMilliseconds;
+             long elapsedMilliseconds = timer.ElapsedMilliseconds;
+             long timeSinceLastFPSUpdate = elapsedMilliseconds - startElapsedMilliseconds;
 
-             if (elapsedMilliseconds > 100)
+             if (timeSinceLastFPSUpdate > 100)
              {
                 int fps = (int)Math.Round(frameCount / (elapsedMilliseconds / 1000.0));
 
@@ -57,12 +58,13 @@ AnsiConsole.Live(layout)
                 layout["Top"].Update(new Text($"Health: {health} | {fps} FPS").Centered());
 
                 frameCount = 0;
-                startElapsedMilliseconds = timer.ElapsedMilliseconds;
+                startElapsedMilliseconds = elapsedMilliseconds;
                 updateDisplay = true;
              }
 
-             // UNDONE This doesn't even work. The health isn't going down unless debugging with breakpoints.
-             if (elapsedMilliseconds - lastHealthDecreaseMilliseconds >= 3000)
+             long timeSinceLastHealthUpdate = elapsedMilliseconds - lastHealthDecreaseMilliseconds;
+
+             if (timeSinceLastHealthUpdate >= 3000)
              {
                 health = Math.Max(0, health - 1);
                 lastHealthDecreaseMilliseconds = elapsedMilliseconds;
