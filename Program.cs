@@ -80,7 +80,6 @@ AnsiConsole.Live(layout)
                 // Copy display buffer to canvas
                 for (var x = 0; x < canvas.Width; x++)
                 {
-                   // UNDONE Make sure all loops are optimized. I think it is faster with the Y in the outer loop.
                    for (var y = 0; y < canvas.Height; y++)
                    {
                       canvas.SetPixel(x, y, renderer.Buffer.GetPixel(x, y));
