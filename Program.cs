@@ -1,6 +1,7 @@
 ﻿using GameEngine;
 using Spectre.Console;
 using System.Diagnostics;
+using System.Drawing;
 
 AnsiConsole.Console.Profile.Capabilities.Unicode = false;
 
@@ -21,8 +22,8 @@ layout["Bottom"].Update(canvas);
 AnsiConsole.Live(layout)
     .Start(ctx =>
     {
-       System.Drawing.Point sheepPosition = new System.Drawing.Point(1, 1);
-       System.Drawing.Point previousSheepPosition = sheepPosition;
+       Point sheepPosition = new Point(1, 1);
+       Point previousSheepPosition = sheepPosition;
        bool restorelayout = false;
        Stopwatch timer = Stopwatch.StartNew();
        int frameCount = 0;
@@ -135,97 +136,3 @@ AnsiConsole.Live(layout)
           }
        }
     });
-
-namespace GameEngine
-{
-   public class DisplayBuffer
-   {
-      private Color[,] buffer;
-      public int Width { get; }
-      public int Height { get; }
-
-      public DisplayBuffer(int width, int height)
-      {
-         Width = width;
-         Height = height;
-         buffer = new Color[width, height];
-      }
-
-      public void SetPixel(int x, int y, Color color)
-      {
-         buffer[x, y] = color;
-      }
-
-      public Color GetPixel(int x, int y)
-      {
-         return buffer[x, y];
-      }
-
-      public void Clear(Color clearColor)
-      {
-         for (var x = 0; x < Width; x++)
-         {
-            for (var y = 0; y < Height; y++)
-            {
-               SetPixel(x, y, clearColor);
-            }
-         }
-      }
-
-      public void CopyFrom(DisplayBuffer other)
-      {
-         for (int x = 0; x < Width; x++)
-         {
-            for (int y = 0; y < Height; y++)
-            {
-               buffer[x, y] = other.buffer[x, y];
-            }
-         }
-      }
-   }
-
-   public class GameRenderer
-   {
-      private DisplayBuffer[] buffers;
-      private int currentBufferIndex = 0;
-      public DisplayBuffer Buffer => buffers[currentBufferIndex];
-
-      public GameRenderer(int width, int height)
-      {
-         buffers = new DisplayBuffer[2];
-         buffers[0] = new DisplayBuffer(width, height);
-         buffers[1] = new DisplayBuffer(width, height);
-
-         buffers[0].Clear(Color.Black);
-         buffers[1].Clear(Color.Black);
-
-         DrawBorders(buffers[0], Color.Gray19);
-      }
-
-      public void DrawBorders(DisplayBuffer targetBuffer, Color borderColor)
-      {
-         for (var x = 0; x < targetBuffer.Width; x++)
-         {
-            targetBuffer.SetPixel(x, 0, borderColor);
-            targetBuffer.SetPixel(x, targetBuffer.Height - 1, borderColor);
-         }
-
-         for (var y = 1; y < targetBuffer.Height; y++)
-         {
-            targetBuffer.SetPixel(0, y, borderColor);
-            targetBuffer.SetPixel(targetBuffer.Width - 1, y, borderColor);
-         }
-      }
-
-      public void Render(System.Drawing.Point sheepPosition, System.Drawing.Point previousSheepPosition)
-      {
-         int nextBufferIndex = 1 - currentBufferIndex;
-
-         buffers[nextBufferIndex].CopyFrom(buffers[currentBufferIndex]);
-         buffers[nextBufferIndex].SetPixel(previousSheepPosition.X, previousSheepPosition.Y, Color.Black);
-         buffers[nextBufferIndex].SetPixel(sheepPosition.X, sheepPosition.Y, Color.White);
-
-         currentBufferIndex = nextBufferIndex;
-      }
-   }
-}
