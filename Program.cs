@@ -74,17 +74,12 @@ AnsiConsole.Live(layout)
              if (sheepPosition != previousSheepPosition)
              {
                 // TODO Add more entities and only update the pixels that changed instead of redrawing the entire canvas every frame
-                // UNDONE Simplify this logic to only update the pixels that changed instead of redrawing the entire canvas every frame
-                renderer.Render(sheepPosition, previousSheepPosition);
+                List<PixelChange> changedPixels = renderer.Render(sheepPosition, previousSheepPosition);
                 previousSheepPosition = sheepPosition;
 
-                // Copy display buffer to canvas
-                for (var x = 0; x < canvas.Width; x++)
+                foreach (PixelChange pixel in changedPixels)
                 {
-                   for (var y = 0; y < canvas.Height; y++)
-                   {
-                      canvas.SetPixel(x, y, renderer.Buffer.GetPixel(x, y));
-                   }
+                   canvas.SetPixel(pixel.X, pixel.Y, pixel.Color);
                 }
 
                 updateDisplay = true;

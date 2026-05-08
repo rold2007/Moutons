@@ -1,7 +1,22 @@
 using Spectre.Console;
+using System.Collections.Generic;
 
 namespace GameEngine
 {
+   public readonly struct PixelChange
+   {
+      public int X { get; }
+      public int Y { get; }
+      public Color Color { get; }
+
+      public PixelChange(int x, int y, Color color)
+      {
+         X = x;
+         Y = y;
+         Color = color;
+      }
+   }
+
    public class GameRenderer
    {
       private DisplayBuffer[] buffers;
@@ -35,15 +50,18 @@ namespace GameEngine
          }
       }
 
-      public void Render(System.Drawing.Point sheepPosition, System.Drawing.Point previousSheepPosition)
+      public List<PixelChange> Render(System.Drawing.Point sheepPosition, System.Drawing.Point previousSheepPosition)
       {
          int nextBufferIndex = 1 - currentBufferIndex;
+         List<PixelChange> changedPixels = new List<PixelChange>();
 
-         buffers[nextBufferIndex].CopyFrom(buffers[currentBufferIndex]);
-         buffers[nextBufferIndex].SetPixel(previousSheepPosition.X, previousSheepPosition.Y, Color.Black);
-         buffers[nextBufferIndex].SetPixel(sheepPosition.X, sheepPosition.Y, Color.White);
+         changedPixels.AddRange(buffers[nextBufferIndex].CopyFrom(buffers[currentBufferIndex]));
+         changedPixels.AddRange(buffers[nextBufferIndex].SetPixel(previousSheepPosition.X, previousSheepPosition.Y, Color.Black));
+         changedPixels.AddRange(buffers[nextBufferIndex].SetPixel(sheepPosition.X, sheepPosition.Y, Color.White));
 
          currentBufferIndex = nextBufferIndex;
+
+         return changedPixels;
       }
    }
 }
