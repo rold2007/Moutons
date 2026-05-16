@@ -5,7 +5,7 @@ using System.Drawing;
 
 AnsiConsole.Console.Profile.Capabilities.Unicode = false;
 
-Canvas canvas = new Canvas(100, 48);
+Canvas canvas = new Canvas(102, 42);
 Text statusbar = new Text("Use arrow keys to move the sheep. Press ESC to exit.")
     .Centered();
 
@@ -23,7 +23,7 @@ AnsiConsole.Live(layout)
     .Start(ctx =>
     {
        Point sheepPosition = new Point(1, 1);
-       Point previousSheepPosition = sheepPosition;
+       Point previousSheepPosition = new Point(1, 1);
        bool restorelayout = false;
        Stopwatch timer = Stopwatch.StartNew();
        int frameCount = 0;
@@ -31,12 +31,12 @@ AnsiConsole.Live(layout)
        int health = 100;
        long lastHealthDecreaseMilliseconds = 0;
        GameRenderer renderer = new GameRenderer(canvas.Width, canvas.Height);
+       bool updateDisplay = true;
+       bool drawSheep = true;
 
        // HACK Using a text cursor indicator (Settings->Accessibility->Text cursor) makes the cursor visible and moving at each refresh. Find a way to hide the cursor. There is no easy way. Keep it as is for now.
        while (true)
        {
-          bool updateDisplay = false;
-
           if (AnsiConsole.Console.Profile.Width >= canvas.Width && AnsiConsole.Console.Profile.Height >= canvas.Height)
           {
              if (restorelayout)
@@ -71,7 +71,7 @@ AnsiConsole.Live(layout)
                 lastHealthDecreaseMilliseconds = elapsedMilliseconds;
              }
 
-             if (sheepPosition != previousSheepPosition)
+             if (drawSheep)
              {
                 // TODO Add more entities and only update the pixels that changed instead of redrawing the entire canvas every frame
                 List<PixelChange> changedPixels = renderer.Render(sheepPosition, previousSheepPosition);
@@ -83,12 +83,17 @@ AnsiConsole.Live(layout)
                 }
 
                 updateDisplay = true;
+                drawSheep = false;
              }
           }
           else
           {
+             AnsiConsole.Console.Clear();
+
              // TODO Detect if the game just started and pause the game loop until the window is resized to the correct size
-             ctx.UpdateTarget(new Text("Console window is too small. Maximize the window."));
+             string errorMessage = string.Format("Console window is too small. Current size: {0}x{1}. Required size: {2}x{3}. Maximize the window.", AnsiConsole.Console.Profile.Width, AnsiConsole.Console.Profile.Height, canvas.Width * 2, canvas.Height);
+
+             ctx.UpdateTarget(new Text(errorMessage));
              restorelayout = true;
              updateDisplay = true;
           }
@@ -96,6 +101,7 @@ AnsiConsole.Live(layout)
           if (updateDisplay)
           {
              ctx.Refresh();
+             updateDisplay = false;
           }
 
           if (AnsiConsole.Console.Input.IsKeyAvailable())
@@ -126,6 +132,11 @@ AnsiConsole.Live(layout)
                       previousSheepPosition = sheepPosition;
                       sheepPosition.Y = Math.Min(canvas.Height - 2, sheepPosition.Y + 1);
                       break;
+                }
+
+                if (sheepPosition != previousSheepPosition)
+                {
+                   drawSheep = true;
                 }
              }
           }

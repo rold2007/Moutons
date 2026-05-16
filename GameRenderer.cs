@@ -30,7 +30,7 @@ namespace GameEngine
          buffers[1] = new DisplayBuffer(width, height);
 
          buffers[0].Clear(Color.Black);
-         buffers[1].Clear(Color.Black);
+         buffers[1].Clear(Color.White);
 
          DrawBorders(buffers[0], Color.Gray19);
       }

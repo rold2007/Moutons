@@ -2,15 +2,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C#: Moutons",
-            "type": "dotnet",
+            "name": "C#: Moutons (Debug)",
+            "type": "coreclr",
             "request": "launch",
-            "projectPath": "${workspaceFolder}\\Moutons.csproj",
-            "launchConfigurationId": "TargetFramework=;Moutons",
-            "windows":
-            {
-                "console": "externalTerminal",
-            }
+            "preLaunchTask": "Moutons: build",
+            "program": "${workspaceFolder}/bin/Debug/net10.0/Moutons.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
         }
     ]
 }
