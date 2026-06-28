@@ -1,5 +1,6 @@
 ﻿using GameEngine;
 using Spectre.Console;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing;
 
@@ -74,12 +75,12 @@ AnsiConsole.Live(layout)
              if (drawSheep)
              {
                 // TODO Add more entities and only update the pixels that changed instead of redrawing the entire canvas every frame
-                List<PixelChange> changedPixels = renderer.Render(sheepPosition, previousSheepPosition);
+                ImmutableDictionary<System.Drawing.Point, System.Drawing.Color> changedPixels = renderer.Render(sheepPosition, previousSheepPosition);
                 previousSheepPosition = sheepPosition;
 
-                foreach (PixelChange pixel in changedPixels)
+                foreach (var kvp in changedPixels)
                 {
-                   canvas.SetPixel(pixel.X, pixel.Y, pixel.Color);
+                   canvas.SetPixel(kvp.Key.X, kvp.Key.Y, new Spectre.Console.Color(kvp.Value.R, kvp.Value.G, kvp.Value.B));
                 }
 
                 updateDisplay = true;
