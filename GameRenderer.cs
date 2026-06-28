@@ -3,20 +3,6 @@ using System.Drawing;
 
 namespace GameEngine
 {
-   public readonly struct PixelChange
-   {
-      public int X { get; }
-      public int Y { get; }
-      public Color Color { get; }
-
-      public PixelChange(int x, int y, Color color)
-      {
-         X = x;
-         Y = y;
-         Color = color;
-      }
-   }
-
    public class GameRenderer
    {
       public DisplayBuffer Buffer { get; private set; }
