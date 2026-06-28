@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Drawing;
 using GameEngine;
 using Xunit;
@@ -10,7 +11,7 @@ public class GameRendererTests
     public void Constructor_InitializesBufferWithCorrectDimensions()
     {
         // Arrange & Act
-        var renderer = new GameRenderer(100, 50);
+        GameRenderer renderer = new GameRenderer(100, 50);
 
         // Assert
         Assert.NotNull(renderer.Buffer);
@@ -22,8 +23,8 @@ public class GameRendererTests
     public void Constructor_ClearsBufferToBlack()
     {
         // Arrange & Act
-        var renderer = new GameRenderer(10, 10);
-        var rendered = renderer.Buffer.Render();
+        GameRenderer renderer = new GameRenderer(10, 10);
+        ImmutableDictionary<Point, Color> rendered = renderer.Buffer.Render();
 
         // Assert
         Assert.NotEmpty(rendered);
@@ -40,38 +41,38 @@ public class GameRendererTests
     public void Constructor_DrawsBorders()
     {
         // Arrange & Act
-        var renderer = new GameRenderer(10, 10);
-        var rendered = renderer.Buffer.Render();
-        var borderColor = Color.FromArgb(48, 48, 48);
+        GameRenderer renderer = new GameRenderer(10, 10);
+        ImmutableDictionary<Point, Color> rendered = renderer.Buffer.Render();
+        Color borderColor = Color.FromArgb(48, 48, 48);
 
         // Assert - check top border
-        for (var x = 0; x < 10; x++)
+        for (int x = 0; x < 10; x++)
         {
-            var topBorderPixel = new Point(x, 0);
+            Point topBorderPixel = new Point(x, 0);
             Assert.True(rendered.ContainsKey(topBorderPixel));
             Assert.Equal(borderColor, rendered[topBorderPixel]);
         }
 
         // Assert - check bottom border
-        for (var x = 0; x < 10; x++)
+        for (int x = 0; x < 10; x++)
         {
-            var bottomBorderPixel = new Point(x, 9);
+            Point bottomBorderPixel = new Point(x, 9);
             Assert.True(rendered.ContainsKey(bottomBorderPixel));
             Assert.Equal(borderColor, rendered[bottomBorderPixel]);
         }
 
         // Assert - check left border
-        for (var y = 1; y < 10; y++)
+        for (int y = 1; y < 10; y++)
         {
-            var leftBorderPixel = new Point(0, y);
+            Point leftBorderPixel = new Point(0, y);
             Assert.True(rendered.ContainsKey(leftBorderPixel));
             Assert.Equal(borderColor, rendered[leftBorderPixel]);
         }
 
         // Assert - check right border
-        for (var y = 1; y < 10; y++)
+        for (int y = 1; y < 10; y++)
         {
-            var rightBorderPixel = new Point(9, y);
+            Point rightBorderPixel = new Point(9, y);
             Assert.True(rendered.ContainsKey(rightBorderPixel));
             Assert.Equal(borderColor, rendered[rightBorderPixel]);
         }
@@ -84,7 +85,7 @@ public class GameRendererTests
     public void Constructor_WithVariousDimensions_InitializesCorrectly(int width, int height)
     {
         // Arrange & Act
-        var renderer = new GameRenderer(width, height);
+        GameRenderer renderer = new GameRenderer(width, height);
 
         // Assert
         Assert.Equal(width, renderer.Buffer.Width);
@@ -95,16 +96,16 @@ public class GameRendererTests
     public void DrawBorders_AddsPixelsToBuffer()
     {
         // Arrange
-        var buffer = new DisplayBuffer(10, 10);
-        var renderer = new GameRenderer(10, 10);
-        var borderColor = Color.Red;
+        DisplayBuffer buffer = new DisplayBuffer(10, 10);
+        GameRenderer renderer = new GameRenderer(10, 10);
+        Color borderColor = Color.Red;
 
         // Act
-        var borderedBuffer = renderer.DrawBorders(buffer, borderColor);
+        DisplayBuffer borderedBuffer = renderer.DrawBorders(buffer, borderColor);
 
         // Assert
         Assert.NotNull(borderedBuffer);
-        var rendered = borderedBuffer.Render();
+        ImmutableDictionary<Point, Color> rendered = borderedBuffer.Render();
 
         // Top border: 10 pixels
         // Bottom border: 10 pixels
@@ -118,15 +119,15 @@ public class GameRendererTests
     public void DrawBorders_WithCustomColor()
     {
         // Arrange
-        var buffer = new DisplayBuffer(10, 10);
-        var renderer = new GameRenderer(10, 10);
-        var customColor = Color.Blue;
+        DisplayBuffer buffer = new DisplayBuffer(10, 10);
+        GameRenderer renderer = new GameRenderer(10, 10);
+        Color customColor = Color.Blue;
 
         // Act
-        var borderedBuffer = renderer.DrawBorders(buffer, customColor);
+        DisplayBuffer borderedBuffer = renderer.DrawBorders(buffer, customColor);
 
         // Assert
-        var rendered = borderedBuffer.Render();
+        ImmutableDictionary<Point, Color> rendered = borderedBuffer.Render();
         Assert.All(rendered.Values, color => Assert.Equal(customColor, color));
     }
 
@@ -134,11 +135,11 @@ public class GameRendererTests
     public void DrawBorders_ReturnsNewBuffer()
     {
         // Arrange
-        var buffer = new DisplayBuffer(10, 10);
-        var renderer = new GameRenderer(10, 10);
+        DisplayBuffer buffer = new DisplayBuffer(10, 10);
+        GameRenderer renderer = new GameRenderer(10, 10);
 
         // Act
-        var borderedBuffer = renderer.DrawBorders(buffer, Color.Green);
+        DisplayBuffer borderedBuffer = renderer.DrawBorders(buffer, Color.Green);
 
         // Assert
         Assert.NotSame(buffer, borderedBuffer);
@@ -148,15 +149,15 @@ public class GameRendererTests
     public void DrawBorders_SmallBuffer_DrawsCorrectly()
     {
         // Arrange
-        var buffer = new DisplayBuffer(3, 3);
-        var renderer = new GameRenderer(3, 3);
-        var borderColor = Color.Yellow;
+        DisplayBuffer buffer = new DisplayBuffer(3, 3);
+        GameRenderer renderer = new GameRenderer(3, 3);
+        Color borderColor = Color.Yellow;
 
         // Act
-        var borderedBuffer = renderer.DrawBorders(buffer, borderColor);
+        DisplayBuffer borderedBuffer = renderer.DrawBorders(buffer, borderColor);
 
         // Assert
-        var rendered = borderedBuffer.Render();
+        ImmutableDictionary<Point, Color> rendered = borderedBuffer.Render();
         // For 3x3: top 3 + bottom 3 + left (1 middle) + right (1 middle) = 8 pixels
         Assert.Equal(8, rendered.Count);
     }
@@ -165,15 +166,15 @@ public class GameRendererTests
     public void DrawBorders_OnLargeBuffer()
     {
         // Arrange
-        var buffer = new DisplayBuffer(100, 50);
-        var renderer = new GameRenderer(100, 50);
-        var borderColor = Color.Black;
+        DisplayBuffer buffer = new DisplayBuffer(100, 50);
+        GameRenderer renderer = new GameRenderer(100, 50);
+        Color borderColor = Color.Black;
 
         // Act
-        var borderedBuffer = renderer.DrawBorders(buffer, borderColor);
+        DisplayBuffer borderedBuffer = renderer.DrawBorders(buffer, borderColor);
 
         // Assert
-        var rendered = borderedBuffer.Render();
+        ImmutableDictionary<Point, Color> rendered = borderedBuffer.Render();
         // Top: 100 + Bottom: 100 + Left: 48 + Right: 48 = 296
         Assert.Equal(296, rendered.Count);
     }
@@ -182,12 +183,12 @@ public class GameRendererTests
     public void Render_UpdatesSheepPosition()
     {
         // Arrange
-        var renderer = new GameRenderer(20, 20);
-        var sheepPosition = new Point(10, 10);
-        var previousPosition = new Point(5, 5);
+        GameRenderer renderer = new GameRenderer(20, 20);
+        Point sheepPosition = new Point(10, 10);
+        Point previousPosition = new Point(5, 5);
 
         // Act
-        var rendered = renderer.Render(sheepPosition, previousPosition);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
 
         // Assert
         Assert.NotNull(rendered);
@@ -199,12 +200,12 @@ public class GameRendererTests
     public void Render_ClearsPreviousSheepPosition()
     {
         // Arrange
-        var renderer = new GameRenderer(20, 20);
-        var sheepPosition = new Point(10, 10);
-        var previousPosition = new Point(5, 5);
+        GameRenderer renderer = new GameRenderer(20, 20);
+        Point sheepPosition = new Point(10, 10);
+        Point previousPosition = new Point(5, 5);
 
         // Act
-        var rendered = renderer.Render(sheepPosition, previousPosition);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
 
         // Assert
         Assert.True(rendered.ContainsKey(previousPosition));
@@ -215,17 +216,17 @@ public class GameRendererTests
     public void Render_ReturnsImmutableDictionary()
     {
         // Arrange
-        var renderer = new GameRenderer(20, 20);
-        var sheepPosition = new Point(10, 10);
-        var previousPosition = new Point(5, 5);
+        GameRenderer renderer = new GameRenderer(20, 20);
+        Point sheepPosition = new Point(10, 10);
+        Point previousPosition = new Point(5, 5);
 
         // Act
-        var rendered = renderer.Render(sheepPosition, previousPosition);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
 
         // Assert
         Assert.NotNull(rendered);
         // Verify it's immutable by trying to access it (would throw if mutable operations attempted)
-        var count = rendered.Count;
+        int count = rendered.Count;
         Assert.True(count > 0);
     }
 
@@ -233,13 +234,13 @@ public class GameRendererTests
     public void Render_ResetsBufferAfterRendering()
     {
         // Arrange
-        var renderer = new GameRenderer(20, 20);
-        var sheepPosition = new Point(10, 10);
-        var previousPosition = new Point(5, 5);
+        GameRenderer renderer = new GameRenderer(20, 20);
+        Point sheepPosition = new Point(10, 10);
+        Point previousPosition = new Point(5, 5);
 
         // Act
         renderer.Render(sheepPosition, previousPosition);
-        var bufferAfterRender = renderer.Buffer.Render();
+        ImmutableDictionary<Point, Color> bufferAfterRender = renderer.Buffer.Render();
 
         // Assert
         // Buffer should be reset (empty) after render
@@ -250,13 +251,13 @@ public class GameRendererTests
     public void Render_MultipleCalls_WithDifferentPositions()
     {
         // Arrange
-        var renderer = new GameRenderer(30, 30);
+        GameRenderer renderer = new GameRenderer(30, 30);
 
         // Act - First render
-        var rendered1 = renderer.Render(new Point(10, 10), new Point(5, 5));
+        ImmutableDictionary<Point, Color> rendered1 = renderer.Render(new Point(10, 10), new Point(5, 5));
 
         // Act - Second render with different position
-        var rendered2 = renderer.Render(new Point(15, 15), new Point(10, 10));
+        ImmutableDictionary<Point, Color> rendered2 = renderer.Render(new Point(15, 15), new Point(10, 10));
 
         // Assert
         Assert.NotNull(rendered1);
@@ -269,11 +270,11 @@ public class GameRendererTests
     public void Render_SamePositionForBothSheepAndPrevious()
     {
         // Arrange
-        var renderer = new GameRenderer(20, 20);
-        var position = new Point(10, 10);
+        GameRenderer renderer = new GameRenderer(20, 20);
+        Point position = new Point(10, 10);
 
         // Act
-        var rendered = renderer.Render(position, position);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(position, position);
 
         // Assert
         // When previous and current are the same, both operations happen
@@ -286,12 +287,12 @@ public class GameRendererTests
     public void Render_WithZeroCoordinates()
     {
         // Arrange
-        var renderer = new GameRenderer(20, 20);
-        var sheepPosition = new Point(0, 0);
-        var previousPosition = new Point(1, 1);
+        GameRenderer renderer = new GameRenderer(20, 20);
+        Point sheepPosition = new Point(0, 0);
+        Point previousPosition = new Point(1, 1);
 
         // Act
-        var rendered = renderer.Render(sheepPosition, previousPosition);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
 
         // Assert
         Assert.True(rendered.ContainsKey(sheepPosition));
@@ -304,12 +305,12 @@ public class GameRendererTests
     public void Render_WithEdgeCoordinates()
     {
         // Arrange
-        var renderer = new GameRenderer(20, 20);
-        var sheepPosition = new Point(19, 19);
-        var previousPosition = new Point(0, 19);
+        GameRenderer renderer = new GameRenderer(20, 20);
+        Point sheepPosition = new Point(19, 19);
+        Point previousPosition = new Point(0, 19);
 
         // Act
-        var rendered = renderer.Render(sheepPosition, previousPosition);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
 
         // Assert
         Assert.True(rendered.ContainsKey(sheepPosition));
@@ -322,10 +323,10 @@ public class GameRendererTests
     public void BufferProperty_CanBeAccessed()
     {
         // Arrange
-        var renderer = new GameRenderer(20, 20);
+        GameRenderer renderer = new GameRenderer(20, 20);
 
         // Act
-        var buffer = renderer.Buffer;
+        DisplayBuffer buffer = renderer.Buffer;
 
         // Assert
         Assert.NotNull(buffer);
@@ -337,10 +338,10 @@ public class GameRendererTests
     public void BufferProperty_IsDisplayBuffer()
     {
         // Arrange
-        var renderer = new GameRenderer(20, 20);
+        GameRenderer renderer = new GameRenderer(20, 20);
 
         // Act
-        var buffer = renderer.Buffer;
+        DisplayBuffer buffer = renderer.Buffer;
 
         // Assert
         Assert.IsType<DisplayBuffer>(buffer);

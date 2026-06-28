@@ -29,9 +29,9 @@ namespace GameEngine
       {
          ImmutableDictionary<Point, Color> changedPixels = ImmutableDictionary<Point, Color>.Empty;
 
-         for (var x = 0; x < Width; x++)
+         for (int x = 0; x < Width; x++)
          {
-            for (var y = 0; y < Height; y++)
+            for (int y = 0; y < Height; y++)
             {
                changedPixels = changedPixels.Add(new Point(x, y), clearColor);
             }

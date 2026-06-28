@@ -11,7 +11,7 @@ public class DisplayBufferTests
     public void Constructor_SetsWidthAndHeight()
     {
         // Arrange & Act
-        var buffer = new DisplayBuffer(100, 50);
+        DisplayBuffer buffer = new DisplayBuffer(100, 50);
 
         // Assert
         Assert.Equal(100, buffer.Width);
@@ -25,7 +25,7 @@ public class DisplayBufferTests
     public void Constructor_WithVariousDimensions_SetsCorrectly(int width, int height)
     {
         // Arrange & Act
-        var buffer = new DisplayBuffer(width, height);
+        DisplayBuffer buffer = new DisplayBuffer(width, height);
 
         // Assert
         Assert.Equal(width, buffer.Width);
@@ -36,12 +36,12 @@ public class DisplayBufferTests
     public void SetPixel_AddsPixelToChangedPixels()
     {
         // Arrange
-        var buffer = new DisplayBuffer(100, 100);
-        var point = new Point(10, 20);
-        var color = Color.Red;
+        DisplayBuffer buffer = new DisplayBuffer(100, 100);
+        Point point = new Point(10, 20);
+        Color color = Color.Red;
 
         // Act
-        var newBuffer = buffer.SetPixel(point, color);
+        DisplayBuffer newBuffer = buffer.SetPixel(point, color);
 
         // Assert
         Assert.Single(newBuffer.Render());
@@ -53,12 +53,12 @@ public class DisplayBufferTests
     public void SetPixel_ReturnsNewBuffer()
     {
         // Arrange
-        var buffer = new DisplayBuffer(100, 100);
-        var point = new Point(10, 20);
-        var color = Color.Blue;
+        DisplayBuffer buffer = new DisplayBuffer(100, 100);
+        Point point = new Point(10, 20);
+        Color color = Color.Blue;
 
         // Act
-        var newBuffer = buffer.SetPixel(point, color);
+        DisplayBuffer newBuffer = buffer.SetPixel(point, color);
 
         // Assert
         Assert.NotSame(buffer, newBuffer);
@@ -68,15 +68,15 @@ public class DisplayBufferTests
     public void SetPixel_MultiplePixels_AllAreStored()
     {
         // Arrange
-        var buffer = new DisplayBuffer(100, 100);
-        var point1 = new Point(10, 20);
-        var point2 = new Point(30, 40);
-        var color1 = Color.Red;
-        var color2 = Color.Green;
+        DisplayBuffer buffer = new DisplayBuffer(100, 100);
+        Point point1 = new Point(10, 20);
+        Point point2 = new Point(30, 40);
+        Color color1 = Color.Red;
+        Color color2 = Color.Green;
 
         // Act
-        var buffer2 = buffer.SetPixel(point1, color1);
-        var buffer3 = buffer2.SetPixel(point2, color2);
+        DisplayBuffer buffer2 = buffer.SetPixel(point1, color1);
+        DisplayBuffer buffer3 = buffer2.SetPixel(point2, color2);
 
         // Assert
         Assert.Equal(2, buffer3.Render().Count);
@@ -88,14 +88,14 @@ public class DisplayBufferTests
     public void SetPixel_OverwritesExistingPixel()
     {
         // Arrange
-        var buffer = new DisplayBuffer(100, 100);
-        var point = new Point(10, 20);
-        var color1 = Color.Red;
-        var color2 = Color.Blue;
+        DisplayBuffer buffer = new DisplayBuffer(100, 100);
+        Point point = new Point(10, 20);
+        Color color1 = Color.Red;
+        Color color2 = Color.Blue;
 
         // Act
-        var buffer2 = buffer.SetPixel(point, color1);
-        var buffer3 = buffer2.SetPixel(point, color2);
+        DisplayBuffer buffer2 = buffer.SetPixel(point, color1);
+        DisplayBuffer buffer3 = buffer2.SetPixel(point, color2);
 
         // Assert
         Assert.Single(buffer3.Render());
@@ -106,20 +106,20 @@ public class DisplayBufferTests
     public void Clear_FillsAllPixelsWithColor()
     {
         // Arrange
-        var buffer = new DisplayBuffer(10, 10);
-        var clearColor = Color.Black;
+        DisplayBuffer buffer = new DisplayBuffer(10, 10);
+        Color clearColor = Color.Black;
 
         // Act
-        var clearedBuffer = buffer.Clear(clearColor);
+        DisplayBuffer clearedBuffer = buffer.Clear(clearColor);
 
         // Assert
         Assert.Equal(100, clearedBuffer.Render().Count); // 10 * 10
-        var pixels = clearedBuffer.Render();
-        for (var x = 0; x < 10; x++)
+        ImmutableDictionary<Point, Color> pixels = clearedBuffer.Render();
+        for (int x = 0; x < 10; x++)
         {
-            for (var y = 0; y < 10; y++)
+            for (int y = 0; y < 10; y++)
             {
-                var point = new Point(x, y);
+                Point point = new Point(x, y);
                 Assert.True(pixels.ContainsKey(point));
                 Assert.Equal(clearColor, pixels[point]);
             }
@@ -130,13 +130,13 @@ public class DisplayBufferTests
     public void Clear_WithDifferentColors()
     {
         // Arrange
-        var buffer = new DisplayBuffer(5, 5);
-        var color1 = Color.Red;
-        var color2 = Color.Blue;
+        DisplayBuffer buffer = new DisplayBuffer(5, 5);
+        Color color1 = Color.Red;
+        Color color2 = Color.Blue;
 
         // Act
-        var clearedBuffer1 = buffer.Clear(color1);
-        var clearedBuffer2 = buffer.Clear(color2);
+        DisplayBuffer clearedBuffer1 = buffer.Clear(color1);
+        DisplayBuffer clearedBuffer2 = buffer.Clear(color2);
 
         // Assert
         Assert.All(clearedBuffer1.Render().Values, color => Assert.Equal(color1, color));
@@ -147,11 +147,11 @@ public class DisplayBufferTests
     public void Clear_OnSmallBuffer_FillsCorrectly()
     {
         // Arrange
-        var buffer = new DisplayBuffer(2, 3);
-        var clearColor = Color.Green;
+        DisplayBuffer buffer = new DisplayBuffer(2, 3);
+        Color clearColor = Color.Green;
 
         // Act
-        var clearedBuffer = buffer.Clear(clearColor);
+        DisplayBuffer clearedBuffer = buffer.Clear(clearColor);
 
         // Assert
         Assert.Equal(6, clearedBuffer.Render().Count); // 2 * 3
@@ -161,10 +161,10 @@ public class DisplayBufferTests
     public void Clear_ReturnsNewBuffer()
     {
         // Arrange
-        var buffer = new DisplayBuffer(10, 10);
+        DisplayBuffer buffer = new DisplayBuffer(10, 10);
 
         // Act
-        var clearedBuffer = buffer.Clear(Color.Black);
+        DisplayBuffer clearedBuffer = buffer.Clear(Color.Black);
 
         // Assert
         Assert.NotSame(buffer, clearedBuffer);
@@ -174,13 +174,13 @@ public class DisplayBufferTests
     public void Render_ReturnsChangedPixels()
     {
         // Arrange
-        var buffer = new DisplayBuffer(100, 100);
-        var point = new Point(50, 50);
-        var color = Color.Red;
-        var bufferWithPixel = buffer.SetPixel(point, color);
+        DisplayBuffer buffer = new DisplayBuffer(100, 100);
+        Point point = new Point(50, 50);
+        Color color = Color.Red;
+        DisplayBuffer bufferWithPixel = buffer.SetPixel(point, color);
 
         // Act
-        var rendered = bufferWithPixel.Render();
+        ImmutableDictionary<Point, Color> rendered = bufferWithPixel.Render();
 
         // Assert
         Assert.IsType<ImmutableDictionary<Point, Color>>(rendered);
@@ -192,10 +192,10 @@ public class DisplayBufferTests
     public void Render_EmptyBuffer_ReturnsEmptyDictionary()
     {
         // Arrange
-        var buffer = new DisplayBuffer(100, 100);
+        DisplayBuffer buffer = new DisplayBuffer(100, 100);
 
         // Act
-        var rendered = buffer.Render();
+        ImmutableDictionary<Point, Color> rendered = buffer.Render();
 
         // Assert
         Assert.Empty(rendered);
@@ -205,21 +205,21 @@ public class DisplayBufferTests
     public void SetPixelAndRender_ChainedOperations()
     {
         // Arrange
-        var buffer = new DisplayBuffer(50, 50);
-        var points = new[] { new Point(1, 1), new Point(2, 2), new Point(3, 3) };
-        var color = Color.Yellow;
+        DisplayBuffer buffer = new DisplayBuffer(50, 50);
+        Point[] points = new[] { new Point(1, 1), new Point(2, 2), new Point(3, 3) };
+        Color color = Color.Yellow;
 
         // Act
-        var result = buffer;
-        foreach (var point in points)
+        DisplayBuffer result = buffer;
+        foreach (Point point in points)
         {
             result = result.SetPixel(point, color);
         }
-        var rendered = result.Render();
+        ImmutableDictionary<Point, Color> rendered = result.Render();
 
         // Assert
         Assert.Equal(3, rendered.Count);
-        foreach (var point in points)
+        foreach (Point point in points)
         {
             Assert.Equal(color, rendered[point]);
         }
@@ -229,14 +229,14 @@ public class DisplayBufferTests
     public void ClearAndSetPixel_CombinedOperations()
     {
         // Arrange
-        var buffer = new DisplayBuffer(20, 20);
-        var clearColor = Color.Black;
-        var pixelColor = Color.White;
-        var pixelPoint = new Point(10, 10);
+        DisplayBuffer buffer = new DisplayBuffer(20, 20);
+        Color clearColor = Color.Black;
+        Color pixelColor = Color.White;
+        Point pixelPoint = new Point(10, 10);
 
         // Act
-        var clearedBuffer = buffer.Clear(clearColor);
-        var finalBuffer = clearedBuffer.SetPixel(pixelPoint, pixelColor);
+        DisplayBuffer clearedBuffer = buffer.Clear(clearColor);
+        DisplayBuffer finalBuffer = clearedBuffer.SetPixel(pixelPoint, pixelColor);
 
         // Assert
         Assert.Equal(401, finalBuffer.Render().Count); // (20*20) + 1 overwrite

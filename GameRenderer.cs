@@ -18,13 +18,13 @@ namespace GameEngine
 
       public DisplayBuffer DrawBorders(DisplayBuffer targetBuffer, Color borderColor)
       {
-         for (var x = 0; x < targetBuffer.Width; x++)
+         for (int x = 0; x < targetBuffer.Width; x++)
          {
             targetBuffer = targetBuffer.SetPixel(new System.Drawing.Point(x, 0), borderColor);
             targetBuffer = targetBuffer.SetPixel(new System.Drawing.Point(x, targetBuffer.Height - 1), borderColor);
          }
 
-         for (var y = 1; y < targetBuffer.Height; y++)
+         for (int y = 1; y < targetBuffer.Height; y++)
          {
             targetBuffer = targetBuffer.SetPixel(new System.Drawing.Point(0, y), borderColor);
             targetBuffer = targetBuffer.SetPixel(new System.Drawing.Point(targetBuffer.Width - 1, y), borderColor);
