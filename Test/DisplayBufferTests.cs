@@ -239,7 +239,7 @@ public class DisplayBufferTests
         DisplayBuffer finalBuffer = clearedBuffer.SetPixel(pixelPoint, pixelColor);
 
         // Assert
-        Assert.Equal(401, finalBuffer.Render().Count); // (20*20) + 1 overwrite
+        Assert.Equal(400, finalBuffer.Render().Count);
         Assert.Equal(pixelColor, finalBuffer.Render()[pixelPoint]);
     }
 }
