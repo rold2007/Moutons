@@ -78,7 +78,7 @@ AnsiConsole.Live(layout)
                 ImmutableDictionary<System.Drawing.Point, System.Drawing.Color> changedPixels = renderer.Render(sheepPosition, previousSheepPosition);
                 previousSheepPosition = sheepPosition;
 
-                foreach (var kvp in changedPixels)
+                foreach (KeyValuePair<Point, System.Drawing.Color> kvp in changedPixels)
                 {
                    canvas.SetPixel(kvp.Key.X, kvp.Key.Y, new Spectre.Console.Color(kvp.Value.R, kvp.Value.G, kvp.Value.B));
                 }
