@@ -1,4 +1,6 @@
 /.vs
-/bin
-/obj
+/src/bin
+/src/obj
 Moutons.csproj.lscache
+/Test/bin
+/Test/obj

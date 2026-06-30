@@ -1,4 +1,4 @@
-﻿using GameEngine;
+using GameEngine;
 using Spectre.Console;
 using System.Collections.Immutable;
 using System.Diagnostics;

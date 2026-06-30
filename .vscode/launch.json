@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "Moutons: build",
-            "program": "${workspaceFolder}/bin/Debug/net10.0/Moutons.dll",
+            "program": "${workspaceFolder}/src/bin/Debug/net10.0/Moutons.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
