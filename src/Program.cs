@@ -4,6 +4,10 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing;
 
+// UNDONE Add EntityManager and GameLogic classes.
+// UNDONE GameLogic may depend on EntityManager, but EntityManager must never depend on GameLogic.  
+// UNDONE GameRenderer must depend on neither.
+
 AnsiConsole.Console.Profile.Capabilities.Unicode = false;
 
 Canvas canvas = new Canvas(102, 42);
@@ -16,6 +20,35 @@ Layout layout = new Layout("Root")
     .SplitRows(
         new Layout("Top").Size(1),
         new Layout("Bottom"));
+
+const int maxHealth = 100;
+const int healthBarWidth = 24;
+
+// TODO Move this to a separate non-UI class and add unit tests
+static string GetHealthColor(int healthPercent)
+{
+   return healthPercent switch
+   {
+      >= 67 => "green",
+      >= 34 => "yellow",
+      _ => "red"
+   };
+}
+
+// TODO Move most of this to a separate non-UI class and add unit tests
+static string BuildHealthBarMarkup(int health, int maxHealthValue, int width)
+{
+   int clampedHealth = Math.Clamp(health, 0, maxHealthValue);
+   int percent = (int)Math.Round(clampedHealth / (double)maxHealthValue * 100);
+   int filled = (int)Math.Round(percent / 100.0 * width);
+   int empty = width - filled;
+
+   string fill = Markup.Escape(new string('#', filled));
+   string rest = Markup.Escape(new string('-', empty));
+   string color = GetHealthColor(percent);
+
+   return $"Health [{color}]{fill}[/][grey]{rest}[/][grey] {percent,3}%[/]";
+}
 
 layout["Top"].Update(statusbar);
 layout["Bottom"].Update(canvas);
@@ -56,8 +89,8 @@ AnsiConsole.Live(layout)
              {
                 int fps = (int)Math.Round(frameCount / (elapsedMilliseconds / 1000.0));
 
-                // TODO Replace health text to progress bar with colors (red, yellow, green))
-                layout["Top"].Update(new Text($"Health: {health} | {fps} FPS").Centered());
+                string healthBar = BuildHealthBarMarkup(health, maxHealth, healthBarWidth);
+                layout["Top"].Update(Align.Center(new Markup($"{healthBar} [grey]|[/] {fps} FPS")));
 
                 frameCount = 0;
                 startElapsedMilliseconds = elapsedMilliseconds;
