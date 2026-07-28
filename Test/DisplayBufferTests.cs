@@ -105,6 +105,32 @@ public class DisplayBufferTests
         Assert.Equal(color2, buffer3.Render()[point]);
     }
 
+    [Theory]
+    [InlineData(5, 4, 0, 0)]
+    [InlineData(5, 4, 4, 0)]
+    [InlineData(5, 4, 0, 3)]
+    [InlineData(5, 4, 4, 3)]
+    [InlineData(5, 4, 2, 0)]
+    [InlineData(5, 4, 2, 3)]
+    [InlineData(5, 4, 0, 2)]
+    [InlineData(5, 4, 4, 2)]
+    public void SetPixel_BoundaryCoordinates_AreStored(int width, int height, int x, int y)
+    {
+        // Arrange
+        DisplayBuffer buffer = new DisplayBuffer(width, height);
+        Point point = new Point(x, y);
+        Color color = Color.Orange;
+
+        // Act
+        DisplayBuffer updatedBuffer = buffer.SetPixel(point, color);
+        ImmutableDictionary<Point, Color> rendered = updatedBuffer.Render();
+
+        // Assert
+        Assert.Single(rendered);
+        Assert.True(rendered.ContainsKey(point));
+        Assert.Equal(color, rendered[point]);
+    }
+
     [Fact]
     public void Clear_FillsAllPixelsWithColor()
     {

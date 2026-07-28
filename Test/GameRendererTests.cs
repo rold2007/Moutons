@@ -208,6 +208,35 @@ public class GameRendererTests
         Assert.Equal(296, rendered.Count);
     }
 
+    [Theory]
+    [InlineData(4, 4)]
+    [InlineData(7, 3)]
+    [InlineData(20, 10)]
+    public void DrawBorders_AllBoundaryCoordinates_HaveBorderColor(int width, int height)
+    {
+        // Arrange
+        DisplayBuffer buffer = new DisplayBuffer(width, height);
+        GameRenderer renderer = new GameRenderer(width, height);
+        Color borderColor = Color.Magenta;
+
+        // Act
+        DisplayBuffer borderedBuffer = renderer.DrawBorders(buffer, borderColor);
+        ImmutableDictionary<Point, Color> rendered = borderedBuffer.Render();
+
+        // Assert
+        for (int x = 0; x < width; x++)
+        {
+            Assert.Equal(borderColor, rendered[new Point(x, 0)]);
+            Assert.Equal(borderColor, rendered[new Point(x, height - 1)]);
+        }
+
+        for (int y = 1; y < height; y++)
+        {
+            Assert.Equal(borderColor, rendered[new Point(0, y)]);
+            Assert.Equal(borderColor, rendered[new Point(width - 1, y)]);
+        }
+    }
+
     [Fact]
     public void Render_UpdatesSheepPosition()
     {
@@ -343,6 +372,36 @@ public class GameRendererTests
         Assert.True(rendered.ContainsKey(sheepPosition));
         Assert.Equal(Color.White, rendered[sheepPosition]);
         Assert.True(rendered.ContainsKey(previousPosition));
+        Assert.Equal(Color.Black, rendered[previousPosition]);
+    }
+
+    [Theory]
+    [InlineData(20, 20, 0, 0, 1, 1)]
+    [InlineData(20, 20, 19, 0, 18, 0)]
+    [InlineData(20, 20, 0, 19, 0, 18)]
+    [InlineData(20, 20, 19, 19, 18, 19)]
+    [InlineData(20, 20, 10, 0, 10, 1)]
+    [InlineData(20, 20, 10, 19, 10, 18)]
+    [InlineData(20, 20, 0, 10, 1, 10)]
+    [InlineData(20, 20, 19, 10, 18, 10)]
+    public void Render_BoundaryCoordinates_UpdatesCurrentAndPreviousPixels(
+        int width,
+        int height,
+        int sheepX,
+        int sheepY,
+        int previousX,
+        int previousY)
+    {
+        // Arrange
+        GameRenderer renderer = new GameRenderer(width, height);
+        Point sheepPosition = new Point(sheepX, sheepY);
+        Point previousPosition = new Point(previousX, previousY);
+
+        // Act
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
+
+        // Assert
+        Assert.Equal(Color.White, rendered[sheepPosition]);
         Assert.Equal(Color.Black, rendered[previousPosition]);
     }
 
