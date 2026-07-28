@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Drawing;
 using GameEngine;
 using Xunit;
@@ -62,6 +63,8 @@ public class DisplayBufferTests
 
         // Assert
         Assert.NotSame(buffer, newBuffer);
+        Assert.Empty(buffer.Render());
+        Assert.Single(newBuffer.Render());
     }
 
     [Fact]
@@ -155,6 +158,14 @@ public class DisplayBufferTests
 
         // Assert
         Assert.Equal(6, clearedBuffer.Render().Count); // 2 * 3
+        ImmutableDictionary<Point, Color> pixels = clearedBuffer.Render();
+        for (int x = 0; x < 2; x++)
+        {
+            for (int y = 0; y < 3; y++)
+            {
+                Assert.Equal(clearColor, pixels[new Point(x, y)]);
+            }
+        }
     }
 
     [Fact]
@@ -168,6 +179,8 @@ public class DisplayBufferTests
 
         // Assert
         Assert.NotSame(buffer, clearedBuffer);
+        Assert.Empty(buffer.Render());
+        Assert.NotEmpty(clearedBuffer.Render());
     }
 
     [Fact]
@@ -183,9 +196,21 @@ public class DisplayBufferTests
         ImmutableDictionary<Point, Color> rendered = bufferWithPixel.Render();
 
         // Assert
-        Assert.IsType<ImmutableDictionary<Point, Color>>(rendered);
         Assert.Single(rendered);
         Assert.Equal(color, rendered[point]);
+    }
+
+    [Fact]
+    public void Render_ReturnsReadOnlyCollection()
+    {
+        // Arrange
+        DisplayBuffer buffer = new DisplayBuffer(10, 10).SetPixel(new Point(1, 1), Color.White);
+        ImmutableDictionary<Point, Color> rendered = buffer.Render();
+        IDictionary<Point, Color> asDictionary = rendered;
+
+        // Act & Assert
+        Assert.Throws<NotSupportedException>(() => asDictionary.Add(new Point(2, 2), Color.Black));
+        Assert.Single(rendered);
     }
 
     [Fact]

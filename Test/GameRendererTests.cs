@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Drawing;
 using GameEngine;
 using Xunit;
@@ -20,21 +21,35 @@ public class GameRendererTests
     }
 
     [Fact]
-    public void Constructor_ClearsBufferToBlack()
+    public void Constructor_InitializesBlackBackgroundAndGrayBorders()
     {
         // Arrange & Act
         GameRenderer renderer = new GameRenderer(10, 10);
         ImmutableDictionary<Point, Color> rendered = renderer.Buffer.Render();
+        Color borderColor = Color.FromArgb(48, 48, 48);
 
         // Assert
-        Assert.NotEmpty(rendered);
-        // After clear and borders, all pixels should be set
-        Assert.All(rendered.Values, color =>
+        Assert.Equal(100, rendered.Count);
+
+        for (int x = 0; x < 10; x++)
         {
-            // Should be either black (from clear) or dark gray (from borders)
-            Assert.True(color == Color.Black || color == Color.FromArgb(48, 48, 48),
-                $"Unexpected color: {color}");
-        });
+            Assert.Equal(borderColor, rendered[new Point(x, 0)]);
+            Assert.Equal(borderColor, rendered[new Point(x, 9)]);
+        }
+
+        for (int y = 1; y < 9; y++)
+        {
+            Assert.Equal(borderColor, rendered[new Point(0, y)]);
+            Assert.Equal(borderColor, rendered[new Point(9, y)]);
+        }
+
+        for (int x = 1; x < 9; x++)
+        {
+            for (int y = 1; y < 9; y++)
+            {
+                Assert.Equal(Color.Black, rendered[new Point(x, y)]);
+            }
+        }
     }
 
     [Fact]
@@ -113,6 +128,20 @@ public class GameRendererTests
         // Right border (excluding corners): 8 pixels
         // Total: 36 pixels
         Assert.Equal(36, rendered.Count);
+
+        for (int x = 0; x < 10; x++)
+        {
+            Assert.Equal(borderColor, rendered[new Point(x, 0)]);
+            Assert.Equal(borderColor, rendered[new Point(x, 9)]);
+        }
+
+        for (int y = 1; y < 9; y++)
+        {
+            Assert.Equal(borderColor, rendered[new Point(0, y)]);
+            Assert.Equal(borderColor, rendered[new Point(9, y)]);
+        }
+
+        Assert.False(rendered.ContainsKey(new Point(5, 5)));
     }
 
     [Fact]
@@ -222,12 +251,10 @@ public class GameRendererTests
 
         // Act
         ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
+        IDictionary<Point, Color> asDictionary = rendered;
 
         // Assert
-        Assert.NotNull(rendered);
-        // Verify it's immutable by trying to access it (would throw if mutable operations attempted)
-        int count = rendered.Count;
-        Assert.True(count > 0);
+        Assert.Throws<NotSupportedException>(() => asDictionary.Add(new Point(0, 0), Color.White));
     }
 
     [Fact]
