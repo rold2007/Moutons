@@ -1,12 +1,9 @@
 using GameEngine;
+using Moutons;
 using Spectre.Console;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing;
-
-// UNDONE Add EntityManager and GameLogic classes.
-// UNDONE GameLogic may depend on EntityManager, but EntityManager must never depend on GameLogic.  
-// UNDONE GameRenderer must depend on neither.
 
 AnsiConsole.Console.Profile.Capabilities.Unicode = false;
 
@@ -56,8 +53,9 @@ layout["Bottom"].Update(canvas);
 AnsiConsole.Live(layout)
     .Start(ctx =>
     {
-       Point sheepPosition = new Point(1, 1);
-       Point previousSheepPosition = new Point(1, 1);
+       int worldWidth = canvas.Width;
+       int worldHeight = canvas.Height;
+       GameLogic gameLogic = new GameLogic(worldWidth, worldHeight, new Point(1, 1));
        bool restorelayout = false;
        Stopwatch timer = Stopwatch.StartNew();
        int frameCount = 0;
@@ -108,8 +106,7 @@ AnsiConsole.Live(layout)
              if (drawSheep)
              {
                 // TODO Add more entities and only update the pixels that changed instead of redrawing the entire canvas every frame
-                ImmutableDictionary<System.Drawing.Point, System.Drawing.Color> changedPixels = renderer.Render(sheepPosition, previousSheepPosition);
-                previousSheepPosition = sheepPosition;
+                ImmutableDictionary<System.Drawing.Point, System.Drawing.Color> changedPixels = renderer.Render(gameLogic.SheepPosition, gameLogic.PreviousSheepPosition);
 
                 foreach (KeyValuePair<Point, System.Drawing.Color> kvp in changedPixels)
                 {
@@ -151,24 +148,20 @@ AnsiConsole.Live(layout)
                 switch (key?.Key)
                 {
                    case ConsoleKey.LeftArrow:
-                      previousSheepPosition = sheepPosition;
-                      sheepPosition.X = Math.Max(1, sheepPosition.X - 1);
+                      gameLogic = gameLogic.MoveSheepLeft();
                       break;
                    case ConsoleKey.RightArrow:
-                      previousSheepPosition = sheepPosition;
-                      sheepPosition.X = Math.Min(canvas.Width - 2, sheepPosition.X + 1);
+                      gameLogic = gameLogic.MoveSheepRight();
                       break;
                    case ConsoleKey.UpArrow:
-                      previousSheepPosition = sheepPosition;
-                      sheepPosition.Y = Math.Max(1, sheepPosition.Y - 1);
+                      gameLogic = gameLogic.MoveSheepUp();
                       break;
                    case ConsoleKey.DownArrow:
-                      previousSheepPosition = sheepPosition;
-                      sheepPosition.Y = Math.Min(canvas.Height - 2, sheepPosition.Y + 1);
+                      gameLogic = gameLogic.MoveSheepDown();
                       break;
                 }
 
-                if (sheepPosition != previousSheepPosition)
+                if (gameLogic.SheepPositionChanged)
                 {
                    drawSheep = true;
                 }
