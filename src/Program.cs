@@ -148,16 +148,16 @@ AnsiConsole.Live(layout)
                 switch (key?.Key)
                 {
                    case ConsoleKey.LeftArrow:
-                      gameLogic = gameLogic.MoveSheepLeft();
+                      gameLogic = gameLogic.MoveSheep(Direction.Left);
                       break;
                    case ConsoleKey.RightArrow:
-                      gameLogic = gameLogic.MoveSheepRight();
+                      gameLogic = gameLogic.MoveSheep(Direction.Right);
                       break;
                    case ConsoleKey.UpArrow:
-                      gameLogic = gameLogic.MoveSheepUp();
+                      gameLogic = gameLogic.MoveSheep(Direction.Up);
                       break;
                    case ConsoleKey.DownArrow:
-                      gameLogic = gameLogic.MoveSheepDown();
+                      gameLogic = gameLogic.MoveSheep(Direction.Down);
                       break;
                 }
 
