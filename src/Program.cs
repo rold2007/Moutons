@@ -40,11 +40,14 @@ AnsiConsole.Live(layout)
        GameRenderer renderer = new GameRenderer(canvas.Width, canvas.Height);
        bool updateDisplay = true;
        bool drawSheep = true;
+       bool uiActive = true;
+       int consoleWidthError = 0;
+       int consoleHeightError = 0;
 
        // HACK Using a text cursor indicator (Settings->Accessibility->Text cursor) makes the cursor visible and moving at each refresh. Find a way to hide the cursor. There is no easy way. Keep it as is for now.
        while (true)
        {
-          if (AnsiConsole.Console.Profile.Width >= canvas.Width && AnsiConsole.Console.Profile.Height >= canvas.Height)
+          if (AnsiConsole.Console.Profile.Width >= canvas.Width * 2 && AnsiConsole.Console.Profile.Height >= canvas.Height + 1)
           {
              if (restorelayout)
              {
@@ -91,17 +94,27 @@ AnsiConsole.Live(layout)
                 updateDisplay = true;
                 drawSheep = false;
              }
+
+             consoleWidthError = 0;
+             consoleHeightError = 0;
+             uiActive = true;
           }
           else
           {
-             AnsiConsole.Console.Clear();
+             if (consoleWidthError != AnsiConsole.Console.Profile.Width || consoleHeightError != AnsiConsole.Console.Profile.Height)
+             {
+                consoleWidthError = AnsiConsole.Console.Profile.Width;
+                consoleHeightError = AnsiConsole.Console.Profile.Height;
 
-             // TODO Detect if the game just started and pause the game loop until the window is resized to the correct size
-             string errorMessage = string.Format("Console window is too small. Current size: {0}x{1}. Required size: {2}x{3}. Maximize the window.", AnsiConsole.Console.Profile.Width, AnsiConsole.Console.Profile.Height, canvas.Width * 2, canvas.Height);
+                AnsiConsole.Console.Clear();
 
-             ctx.UpdateTarget(new Text(errorMessage));
-             restorelayout = true;
-             updateDisplay = true;
+                string errorMessage = string.Format("Console window is too small. Current size: {0}x{1}. Required size: {2}x{3}. Maximize the window.", AnsiConsole.Console.Profile.Width, AnsiConsole.Console.Profile.Height, canvas.Width * 2, canvas.Height + 1);
+
+                ctx.UpdateTarget(new Text(errorMessage));
+                restorelayout = true;
+                updateDisplay = true;
+                uiActive = false;
+             }
           }
 
           if (updateDisplay)
@@ -120,25 +133,28 @@ AnsiConsole.Live(layout)
              }
              else
              {
-                switch (key?.Key)
+                if (uiActive)
                 {
-                   case ConsoleKey.LeftArrow:
-                      gameLogic = gameLogic.MoveSheep(Direction.Left);
-                      break;
-                   case ConsoleKey.RightArrow:
-                      gameLogic = gameLogic.MoveSheep(Direction.Right);
-                      break;
-                   case ConsoleKey.UpArrow:
-                      gameLogic = gameLogic.MoveSheep(Direction.Up);
-                      break;
-                   case ConsoleKey.DownArrow:
-                      gameLogic = gameLogic.MoveSheep(Direction.Down);
-                      break;
-                }
+                   switch (key?.Key)
+                   {
+                      case ConsoleKey.LeftArrow:
+                         gameLogic = gameLogic.MoveSheep(Direction.Left);
+                         break;
+                      case ConsoleKey.RightArrow:
+                         gameLogic = gameLogic.MoveSheep(Direction.Right);
+                         break;
+                      case ConsoleKey.UpArrow:
+                         gameLogic = gameLogic.MoveSheep(Direction.Up);
+                         break;
+                      case ConsoleKey.DownArrow:
+                         gameLogic = gameLogic.MoveSheep(Direction.Down);
+                         break;
+                   }
 
-                if (gameLogic.SheepPositionChanged)
-                {
-                   drawSheep = true;
+                   if (gameLogic.SheepPositionChanged)
+                   {
+                      drawSheep = true;
+                   }
                 }
              }
           }
