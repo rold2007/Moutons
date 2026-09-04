@@ -25,6 +25,8 @@ const int healthBarWidth = 24;
 layout["Top"].Update(statusbar);
 layout["Bottom"].Update(canvas);
 
+// TODO Add more unit tests if needed.
+// TODO Split UI and game logic in different folders and sub namespaces.
 AnsiConsole.Live(layout)
     .Start(ctx =>
     {
@@ -83,7 +85,8 @@ AnsiConsole.Live(layout)
 
              if (drawSheep)
              {
-                // TODO Add more entities and only update the pixels that changed instead of redrawing the entire canvas every frame
+                // TODO Add more game entities
+                // TODO Only update the pixels that changed instead of redrawing the entire canvas every frame
                 ImmutableDictionary<System.Drawing.Point, System.Drawing.Color> changedPixels = renderer.Render(gameLogic.SheepPosition, gameLogic.PreviousSheepPosition);
 
                 foreach (KeyValuePair<Point, System.Drawing.Color> kvp in changedPixels)
