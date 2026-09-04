@@ -1,5 +1,6 @@
 using GameEngine;
 using Moutons;
+using static GameConsole.ConsoleUtils;
 using Spectre.Console;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -20,17 +21,6 @@ Layout layout = new Layout("Root")
 
 const int maxHealth = 100;
 const int healthBarWidth = 24;
-
-// TODO Move this to a separate non-UI class and add unit tests
-static string GetHealthColor(int healthPercent)
-{
-   return healthPercent switch
-   {
-      >= 67 => "green",
-      >= 34 => "yellow",
-      _ => "red"
-   };
-}
 
 // TODO Move most of this to a separate non-UI class and add unit tests
 static string BuildHealthBarMarkup(int health, int maxHealthValue, int width)
