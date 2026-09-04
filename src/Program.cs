@@ -22,21 +22,6 @@ Layout layout = new Layout("Root")
 const int maxHealth = 100;
 const int healthBarWidth = 24;
 
-// TODO Move most of this to a separate non-UI class and add unit tests
-static string BuildHealthBarMarkup(int health, int maxHealthValue, int width)
-{
-   int clampedHealth = Math.Clamp(health, 0, maxHealthValue);
-   int percent = (int)Math.Round(clampedHealth / (double)maxHealthValue * 100);
-   int filled = (int)Math.Round(percent / 100.0 * width);
-   int empty = width - filled;
-
-   string fill = Markup.Escape(new string('#', filled));
-   string rest = Markup.Escape(new string('-', empty));
-   string color = GetHealthColor(percent);
-
-   return $"Health [{color}]{fill}[/][grey]{rest}[/][grey] {percent,3}%[/]";
-}
-
 layout["Top"].Update(statusbar);
 layout["Bottom"].Update(canvas);
 
