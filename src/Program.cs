@@ -61,9 +61,9 @@ AnsiConsole.Live(layout)
              long elapsedMilliseconds = timer.ElapsedMilliseconds;
              long timeSinceLastFPSUpdate = elapsedMilliseconds - startElapsedMilliseconds;
 
-             if (timeSinceLastFPSUpdate > 100)
+             if (timeSinceLastFPSUpdate > 250)
              {
-                int fps = (int)Math.Round(frameCount / (elapsedMilliseconds / 1000.0));
+                int fps = (int)Math.Round(frameCount / (timeSinceLastFPSUpdate / 1000.0));
 
                 string healthBar = BuildHealthBarMarkup(health, maxHealth, healthBarWidth);
                 layout["Top"].Update(Align.Center(new Markup($"{healthBar} [grey]|[/] {fps} FPS")));
