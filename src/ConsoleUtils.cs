@@ -1,20 +1,21 @@
-using System;
 using Spectre.Console;
+using Moutons;
 
 namespace GameConsole;
 
 public static class ConsoleUtils
 {
-   public static string GetHealthColor(int healthPercent)
+   public static string GetHealthColor(HealthLevel level)
    {
-      // TODO The colors should be defined by the game.
-      return healthPercent switch
+      return level switch
       {
-         >= 67 => "green",
-         >= 34 => "yellow",
+         HealthLevel.High => "green",
+         HealthLevel.Medium => "yellow",
+         HealthLevel.Low => "red",
          _ => "red"
       };
    }
+
 
    public static string BuildHealthBarMarkup(int health, int maxHealthValue, int width)
    {
@@ -25,7 +26,8 @@ public static class ConsoleUtils
 
       string fill = Markup.Escape(new string('#', filled));
       string rest = Markup.Escape(new string('-', empty));
-      string color = GetHealthColor(percent);
+      var level = Health.EvaluateHealthLevel(percent);
+      string color = GetHealthColor(level);
 
       return $"Health [{color}]{fill}[/][grey]{rest}[/][grey] {percent,3}%[/]";
    }
