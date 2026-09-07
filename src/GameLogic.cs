@@ -21,6 +21,7 @@ public class GameLogic
     public Point SheepPosition => CurrentState.SheepPosition;
     public Point PreviousSheepPosition => PreviousState.SheepPosition;
     public bool SheepPositionChanged => SheepPosition != PreviousSheepPosition;
+    public bool StateChanged => SheepPositionChanged;
 
     public GameLogic(int worldWidth, int worldHeight, Point initialPosition)
     {

@@ -33,6 +33,7 @@ AnsiConsole.Live(layout)
        int worldWidth = canvas.Width;
        int worldHeight = canvas.Height;
        GameLogic gameLogic = new GameLogic(worldWidth, worldHeight, new Point(1, 1));
+       GameLogic lastDisplayedGameLogic = gameLogic;
        bool restorelayout = false;
        Stopwatch timer = Stopwatch.StartNew();
        int frameCount = 0;
@@ -41,7 +42,7 @@ AnsiConsole.Live(layout)
        long lastHealthDecreaseMilliseconds = 0;
        GameRenderer renderer = new GameRenderer(canvas.Width, canvas.Height);
        bool updateDisplay = true;
-       bool drawSheep = true;
+       bool renderGame = true;
        bool uiActive = true;
        int consoleWidthError = 0;
        int consoleHeightError = 0;
@@ -83,19 +84,19 @@ AnsiConsole.Live(layout)
                 lastHealthDecreaseMilliseconds = elapsedMilliseconds;
              }
 
-             if (drawSheep)
+             if (renderGame)
              {
-                // TODO Add more game entities
                 // TODO Only update the pixels that changed instead of redrawing the entire canvas every frame
-                ImmutableDictionary<System.Drawing.Point, System.Drawing.Color> changedPixels = renderer.Render(gameLogic.SheepPosition, gameLogic.PreviousSheepPosition);
+                ImmutableDictionary<System.Drawing.Point, System.Drawing.Color> changedPixels = renderer.Render(lastDisplayedGameLogic, gameLogic);
 
                 foreach (KeyValuePair<Point, System.Drawing.Color> kvp in changedPixels)
                 {
                    canvas.SetPixel(kvp.Key.X, kvp.Key.Y, new Spectre.Console.Color(kvp.Value.R, kvp.Value.G, kvp.Value.B));
                 }
 
+                lastDisplayedGameLogic = gameLogic;
                 updateDisplay = true;
-                drawSheep = false;
+                renderGame = false;
              }
 
              consoleWidthError = 0;
@@ -154,9 +155,9 @@ AnsiConsole.Live(layout)
                          break;
                    }
 
-                   if (gameLogic.SheepPositionChanged)
+                   if (gameLogic.StateChanged)
                    {
-                      drawSheep = true;
+                      renderGame = true;
                    }
                 }
              }

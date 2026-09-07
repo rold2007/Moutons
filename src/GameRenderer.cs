@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Drawing;
+using Moutons;
 
 namespace GameEngine
 {
@@ -33,10 +34,10 @@ namespace GameEngine
          return targetBuffer;
       }
 
-      public ImmutableDictionary<System.Drawing.Point, Color> Render(System.Drawing.Point sheepPosition, System.Drawing.Point previousSheepPosition)
+      public ImmutableDictionary<System.Drawing.Point, Color> Render(GameLogic previousGameLogic, GameLogic currentGameLogic)
       {
-         Buffer = Buffer.SetPixel(new System.Drawing.Point(previousSheepPosition.X, previousSheepPosition.Y), Color.Black);
-         Buffer = Buffer.SetPixel(new System.Drawing.Point(sheepPosition.X, sheepPosition.Y), Color.White);
+         Buffer = Buffer.SetPixel(previousGameLogic.SheepPosition, Color.Black);
+         Buffer = Buffer.SetPixel(currentGameLogic.SheepPosition, Color.White);
 
          ImmutableDictionary<System.Drawing.Point, Color> changedPixels = Buffer.Render();
 

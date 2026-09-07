@@ -246,7 +246,7 @@ public class GameRendererTests
         Point previousPosition = new Point(5, 5);
 
         // Act
-        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), CreateGameLogic(sheepPosition));
 
         // Assert
         Assert.NotNull(rendered);
@@ -263,7 +263,7 @@ public class GameRendererTests
         Point previousPosition = new Point(5, 5);
 
         // Act
-        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), CreateGameLogic(sheepPosition));
 
         // Assert
         Assert.True(rendered.ContainsKey(previousPosition));
@@ -279,7 +279,7 @@ public class GameRendererTests
         Point previousPosition = new Point(5, 5);
 
         // Act
-        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), CreateGameLogic(sheepPosition));
         IDictionary<Point, Color> asDictionary = rendered;
 
         // Assert
@@ -295,7 +295,7 @@ public class GameRendererTests
         Point previousPosition = new Point(5, 5);
 
         // Act
-        renderer.Render(sheepPosition, previousPosition);
+        renderer.Render(CreateGameLogic(previousPosition), CreateGameLogic(sheepPosition));
         ImmutableDictionary<Point, Color> bufferAfterRender = renderer.Buffer.Render();
 
         // Assert
@@ -310,10 +310,10 @@ public class GameRendererTests
         GameRenderer renderer = new GameRenderer(30, 30);
 
         // Act - First render
-        ImmutableDictionary<Point, Color> rendered1 = renderer.Render(new Point(10, 10), new Point(5, 5));
+        ImmutableDictionary<Point, Color> rendered1 = renderer.Render(CreateGameLogic(new Point(5, 5)), CreateGameLogic(new Point(10, 10)));
 
         // Act - Second render with different position
-        ImmutableDictionary<Point, Color> rendered2 = renderer.Render(new Point(15, 15), new Point(10, 10));
+        ImmutableDictionary<Point, Color> rendered2 = renderer.Render(CreateGameLogic(new Point(10, 10)), CreateGameLogic(new Point(15, 15)));
 
         // Assert
         Assert.NotNull(rendered1);
@@ -330,7 +330,7 @@ public class GameRendererTests
         Point position = new Point(10, 10);
 
         // Act
-        ImmutableDictionary<Point, Color> rendered = renderer.Render(position, position);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(position), CreateGameLogic(position));
 
         // Assert
         // When previous and current are the same, both operations happen
@@ -348,7 +348,7 @@ public class GameRendererTests
         Point previousPosition = new Point(1, 1);
 
         // Act
-        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), CreateGameLogic(sheepPosition));
 
         // Assert
         Assert.True(rendered.ContainsKey(sheepPosition));
@@ -366,7 +366,7 @@ public class GameRendererTests
         Point previousPosition = new Point(0, 19);
 
         // Act
-        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), CreateGameLogic(sheepPosition));
 
         // Assert
         Assert.True(rendered.ContainsKey(sheepPosition));
@@ -398,11 +398,16 @@ public class GameRendererTests
         Point previousPosition = new Point(previousX, previousY);
 
         // Act
-        ImmutableDictionary<Point, Color> rendered = renderer.Render(sheepPosition, previousPosition);
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), CreateGameLogic(sheepPosition));
 
         // Assert
         Assert.Equal(Color.White, rendered[sheepPosition]);
         Assert.Equal(Color.Black, rendered[previousPosition]);
+    }
+
+    private static GameLogic CreateGameLogic(Point position)
+    {
+        return new GameLogic(20, 20, position);
     }
 
     [Fact]
