@@ -1,5 +1,8 @@
 using Spectre.Console;
 using Moutons;
+using System.Drawing;
+using System.Text;
+using DrawingColor = System.Drawing.Color;
 
 namespace GameConsole;
 
@@ -30,5 +33,26 @@ public static class ConsoleUtils
       string color = GetHealthColor(level);
 
       return $"Health [{color}]{fill}[/][grey]{rest}[/][grey] {percent,3}%[/]";
+   }
+
+   public static string BuildCanvasMarkup(int width, int height, IReadOnlyDictionary<Point, DrawingColor> pixels)
+   {
+      StringBuilder markup = new StringBuilder();
+
+      for (int y = 0; y < height; y++)
+      {
+         for (int x = 0; x < width; x++)
+         {
+            DrawingColor color = pixels[new Point(x, y)];
+            markup.Append($"[on rgb({color.R},{color.G},{color.B})]  [/]");
+         }
+
+         if (y < height - 1)
+         {
+            markup.AppendLine();
+         }
+      }
+
+      return markup.ToString();
    }
 }

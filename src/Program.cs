@@ -2,165 +2,114 @@ using GameEngine;
 using Moutons;
 using static GameConsole.ConsoleUtils;
 using Spectre.Console;
-using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Drawing;
+using System.Collections.Generic;
+using System.Diagnostics;
+using DrawingColor = System.Drawing.Color;
 
 AnsiConsole.Console.Profile.Capabilities.Unicode = false;
 
-Canvas canvas = new Canvas(102, 42);
-Text statusbar = new Text("Use arrow keys to move the sheep. Press ESC to exit.")
-    .Centered();
-
-canvas.Scale = false;
-
-Layout layout = new Layout("Root")
-    .SplitRows(
-        new Layout("Top").Size(1),
-        new Layout("Bottom"));
-
 const int maxHealth = 100;
 const int healthBarWidth = 24;
-
-layout["Top"].Update(statusbar);
-layout["Bottom"].Update(canvas);
+const int canvasWidth = 102;
+const int canvasHeight = 42;
 
 // TODO Add more unit tests if needed.
 // TODO Split UI and game logic in different folders and sub namespaces.
+GameLogic gameLogic = new GameLogic(canvasWidth, canvasHeight, new Point(1, 1));
+GameLogic lastDisplayedGameLogic = gameLogic;
+GameRenderer renderer = new GameRenderer(canvasWidth, canvasHeight);
+Dictionary<Point, DrawingColor> pixels = new Dictionary<Point, DrawingColor>(renderer.Buffer.Render());
+Stopwatch timer = Stopwatch.StartNew();
+int frameCount = 0;
+long startElapsedMilliseconds = 0;
+int health = 100;
+long lastHealthDecreaseMilliseconds = 0;
+bool renderGame = true;
+bool updateDisplay = true;
+
+Layout layout = new Layout("Root")
+   .SplitRows(
+      new Layout("Top").Size(1),
+      new Layout("Bottom").Size(canvasHeight));
+
+   layout["Top"].Update(Align.Center(new Markup("[grey]Starting...[/]")));
+layout["Bottom"].Update(new Markup(BuildCanvasMarkup(canvasWidth, canvasHeight, pixels)));
+
 AnsiConsole.Live(layout)
-    .Start(ctx =>
-    {
-       int worldWidth = canvas.Width;
-       int worldHeight = canvas.Height;
-       GameLogic gameLogic = new GameLogic(worldWidth, worldHeight, new Point(1, 1));
-       GameLogic lastDisplayedGameLogic = gameLogic;
-       bool restorelayout = false;
-       Stopwatch timer = Stopwatch.StartNew();
-       int frameCount = 0;
-       long startElapsedMilliseconds = 0;
-       int health = 100;
-       long lastHealthDecreaseMilliseconds = 0;
-       GameRenderer renderer = new GameRenderer(canvas.Width, canvas.Height);
-       bool updateDisplay = true;
-       bool renderGame = true;
-       bool uiActive = true;
-       int consoleWidthError = 0;
-       int consoleHeightError = 0;
+   .AutoClear(false)
+   .Start(ctx =>
+   {
+      while (true)
+      {
+         frameCount++;
+         long elapsedMilliseconds = timer.ElapsedMilliseconds;
+         long timeSinceLastFPSUpdate = elapsedMilliseconds - startElapsedMilliseconds;
 
-       // HACK Using a text cursor indicator (Settings->Accessibility->Text cursor) makes the cursor visible and moving at each refresh. Find a way to hide the cursor. There is no easy way. Keep it as is for now.
-       while (true)
-       {
-          if (AnsiConsole.Console.Profile.Width >= canvas.Width * 2 && AnsiConsole.Console.Profile.Height >= canvas.Height + 1)
-          {
-             if (restorelayout)
-             {
-                ctx.UpdateTarget(layout);
-                restorelayout = false;
-                updateDisplay = true;
-             }
+         if (timeSinceLastFPSUpdate > 250)
+         {
+            int fps = (int)Math.Round(frameCount / (timeSinceLastFPSUpdate / 1000.0));
+            string healthBar = BuildHealthBarMarkup(health, maxHealth, healthBarWidth);
+            layout["Top"].Update(Align.Center(new Markup($"{healthBar} [grey]|[/] {fps} FPS")));
+            frameCount = 0;
+            startElapsedMilliseconds = elapsedMilliseconds;
+            updateDisplay = true;
+         }
 
-             frameCount++;
+         long timeSinceLastHealthUpdate = elapsedMilliseconds - lastHealthDecreaseMilliseconds;
 
-             long elapsedMilliseconds = timer.ElapsedMilliseconds;
-             long timeSinceLastFPSUpdate = elapsedMilliseconds - startElapsedMilliseconds;
+         if (timeSinceLastHealthUpdate >= 3000)
+         {
+            health = Math.Max(0, health - 1);
+            lastHealthDecreaseMilliseconds = elapsedMilliseconds;
+         }
 
-             if (timeSinceLastFPSUpdate > 250)
-             {
-                int fps = (int)Math.Round(frameCount / (timeSinceLastFPSUpdate / 1000.0));
+         if (renderGame)
+         {
+            foreach (KeyValuePair<Point, DrawingColor> changedPixel in renderer.Render(lastDisplayedGameLogic, gameLogic))
+            {
+               pixels[changedPixel.Key] = changedPixel.Value;
+            }
 
-                string healthBar = BuildHealthBarMarkup(health, maxHealth, healthBarWidth);
-                layout["Top"].Update(Align.Center(new Markup($"{healthBar} [grey]|[/] {fps} FPS")));
+            layout["Bottom"].Update(new Markup(BuildCanvasMarkup(canvasWidth, canvasHeight, pixels)));
+            lastDisplayedGameLogic = gameLogic;
+            renderGame = false;
+            updateDisplay = true;
+         }
 
-                frameCount = 0;
-                startElapsedMilliseconds = elapsedMilliseconds;
-                updateDisplay = true;
-             }
+         if (updateDisplay)
+         {
+            ctx.Refresh();
+            updateDisplay = false;
+         }
 
-             long timeSinceLastHealthUpdate = elapsedMilliseconds - lastHealthDecreaseMilliseconds;
+         if (AnsiConsole.Console.Input.IsKeyAvailable())
+         {
+            ConsoleKeyInfo? key = AnsiConsole.Console.Input.ReadKey(true);
 
-             if (timeSinceLastHealthUpdate >= 3000)
-             {
-                health = Math.Max(0, health - 1);
-                lastHealthDecreaseMilliseconds = elapsedMilliseconds;
-             }
+            if (!key.HasValue)
+            {
+               continue;
+            }
 
-             if (renderGame)
-             {
-                // TODO Only update the pixels that changed instead of redrawing the entire canvas every frame
-                ImmutableDictionary<System.Drawing.Point, System.Drawing.Color> changedPixels = renderer.Render(lastDisplayedGameLogic, gameLogic);
+            if (key.Value.Key == ConsoleKey.Escape)
+            {
+               return;
+            }
 
-                foreach (KeyValuePair<Point, System.Drawing.Color> kvp in changedPixels)
-                {
-                   canvas.SetPixel(kvp.Key.X, kvp.Key.Y, new Spectre.Console.Color(kvp.Value.R, kvp.Value.G, kvp.Value.B));
-                }
+            gameLogic = key.Value.Key switch
+            {
+               ConsoleKey.LeftArrow => gameLogic.MoveSheep(Direction.Left),
+               ConsoleKey.RightArrow => gameLogic.MoveSheep(Direction.Right),
+               ConsoleKey.UpArrow => gameLogic.MoveSheep(Direction.Up),
+               ConsoleKey.DownArrow => gameLogic.MoveSheep(Direction.Down),
+               _ => gameLogic
+            };
 
-                lastDisplayedGameLogic = gameLogic;
-                updateDisplay = true;
-                renderGame = false;
-             }
-
-             consoleWidthError = 0;
-             consoleHeightError = 0;
-             uiActive = true;
-          }
-          else
-          {
-             if (consoleWidthError != AnsiConsole.Console.Profile.Width || consoleHeightError != AnsiConsole.Console.Profile.Height)
-             {
-                consoleWidthError = AnsiConsole.Console.Profile.Width;
-                consoleHeightError = AnsiConsole.Console.Profile.Height;
-
-                AnsiConsole.Console.Clear();
-
-                string errorMessage = string.Format("Console window is too small. Current size: {0}x{1}. Required size: {2}x{3}. Maximize the window.", AnsiConsole.Console.Profile.Width, AnsiConsole.Console.Profile.Height, canvas.Width * 2, canvas.Height + 1);
-
-                ctx.UpdateTarget(new Text(errorMessage));
-                restorelayout = true;
-                updateDisplay = true;
-                uiActive = false;
-             }
-          }
-
-          if (updateDisplay)
-          {
-             ctx.Refresh();
-             updateDisplay = false;
-          }
-
-          if (AnsiConsole.Console.Input.IsKeyAvailable())
-          {
-             ConsoleKeyInfo? key = AnsiConsole.Console.Input.ReadKey(true);
-
-             if (key?.Key == ConsoleKey.Escape)
-             {
-                return;
-             }
-             else
-             {
-                if (uiActive)
-                {
-                   switch (key?.Key)
-                   {
-                      case ConsoleKey.LeftArrow:
-                         gameLogic = gameLogic.MoveSheep(Direction.Left);
-                         break;
-                      case ConsoleKey.RightArrow:
-                         gameLogic = gameLogic.MoveSheep(Direction.Right);
-                         break;
-                      case ConsoleKey.UpArrow:
-                         gameLogic = gameLogic.MoveSheep(Direction.Up);
-                         break;
-                      case ConsoleKey.DownArrow:
-                         gameLogic = gameLogic.MoveSheep(Direction.Down);
-                         break;
-                   }
-
-                   if (gameLogic.StateChanged)
-                   {
-                      renderGame = true;
-                   }
-                }
-             }
-          }
-       }
-    });
+            if (gameLogic.StateChanged)
+            {
+               renderGame = true;
+            }
+         }
+      }
+   });
