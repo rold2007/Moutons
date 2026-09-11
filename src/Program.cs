@@ -39,6 +39,7 @@ AnsiConsole.Live(layout)
    .AutoClear(false)
    .Start(ctx =>
    {
+      // TODO Restore logic to adapt the UI to the console size.
       while (true)
       {
          frameCount++;
