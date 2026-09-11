@@ -1,5 +1,5 @@
 using Xunit;
-using Moutons;
+using Moutons.Core;
 
 namespace Moutons.Test;
 

@@ -1,6 +1,6 @@
 using System.Drawing;
 
-namespace Moutons;
+namespace Moutons.Core;
 
 public class EntityManager
 {

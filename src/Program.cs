@@ -1,6 +1,6 @@
 using GameEngine;
-using Moutons;
-using static GameConsole.ConsoleUtils;
+using Moutons.Core;
+using static Moutons.UI.ConsoleUtils;
 using Spectre.Console;
 using System.Drawing;
 using System.Collections.Generic;
@@ -15,7 +15,6 @@ const int canvasWidth = 102;
 const int canvasHeight = 42;
 
 // TODO Add more unit tests if needed.
-// TODO Split UI and game logic in different folders and sub namespaces.
 GameLogic gameLogic = new GameLogic(canvasWidth, canvasHeight, new Point(1, 1));
 GameLogic lastDisplayedGameLogic = gameLogic;
 GameRenderer renderer = new GameRenderer(canvasWidth, canvasHeight);

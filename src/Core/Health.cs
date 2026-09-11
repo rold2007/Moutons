@@ -1,6 +1,6 @@
 using System;
 
-namespace Moutons;
+namespace Moutons.Core;
 
 public enum HealthLevel
 {

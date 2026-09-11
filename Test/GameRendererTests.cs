@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Collections.Generic;
 using System.Drawing;
 using GameEngine;
+using Moutons.Core;
 using Xunit;
 
 namespace Moutons.Test;
