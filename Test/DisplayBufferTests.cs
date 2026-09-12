@@ -4,7 +4,7 @@ using System.Drawing;
 using GameEngine;
 using Xunit;
 
-namespace Moutons.Test;
+namespace Tests.GameEngine;
 
 public class DisplayBufferTests
 {
@@ -293,4 +293,61 @@ public class DisplayBufferTests
         Assert.Equal(400, finalBuffer.Render().Count);
         Assert.Equal(pixelColor, finalBuffer.Render()[pixelPoint]);
     }
+
+    [Fact]
+    public void Constructor_ZeroDimensions_SetsWidthAndHeight()
+    {
+        // Arrange & Act
+        DisplayBuffer buffer = new DisplayBuffer(0, 0);
+
+        // Assert
+        Assert.Equal(0, buffer.Width);
+        Assert.Equal(0, buffer.Height);
+    }
+
+    [Fact]
+    public void Clear_WithZeroWidthOrHeight_ReturnsEmpty()
+    {
+        // Arrange
+        DisplayBuffer zeroWidth = new DisplayBuffer(0, 5);
+        DisplayBuffer zeroHeight = new DisplayBuffer(5, 0);
+
+        // Act
+        DisplayBuffer clearedZeroWidth = zeroWidth.Clear(Color.Black);
+        DisplayBuffer clearedZeroHeight = zeroHeight.Clear(Color.Black);
+
+        // Assert
+        Assert.Empty(clearedZeroWidth.Render());
+        Assert.Empty(clearedZeroHeight.Render());
+    }
+
+    [Fact]
+    public void SetPixel_OutsideBounds_IsStoredAndOriginalUnchanged()
+    {
+        // Arrange
+        DisplayBuffer buffer = new DisplayBuffer(2, 2);
+        Point outsideNegative = new Point(-1, -1);
+        Point outsidePositive = new Point(2, 2);
+        Color colorNeg = Color.Purple;
+        Color colorPos = Color.Orange;
+
+        // Act
+        DisplayBuffer withNeg = buffer.SetPixel(outsideNegative, colorNeg);
+        DisplayBuffer withBoth = withNeg.SetPixel(outsidePositive, colorPos);
+
+        // Assert
+        // original remains empty
+        Assert.Empty(buffer.Render());
+
+        // each new buffer contains the expected pixels
+        ImmutableDictionary<Point, Color> renderedNeg = withNeg.Render();
+        Assert.Single(renderedNeg);
+        Assert.Equal(colorNeg, renderedNeg[outsideNegative]);
+
+        ImmutableDictionary<Point, Color> renderedBoth = withBoth.Render();
+        Assert.Equal(2, renderedBoth.Count);
+        Assert.Equal(colorNeg, renderedBoth[outsideNegative]);
+        Assert.Equal(colorPos, renderedBoth[outsidePositive]);
+    }
+
 }

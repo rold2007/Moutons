@@ -8,7 +8,6 @@ const int healthBarWidth = 24;
 const int canvasWidth = 102;
 const int canvasHeight = 42;
 
-// TODO Add more unit tests if needed.
 // TODO Restore logic to adapt the UI to the console size.
 
 Layout layout = new Layout("Root")

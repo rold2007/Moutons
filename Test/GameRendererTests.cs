@@ -5,7 +5,7 @@ using GameEngine;
 using Moutons.Core;
 using Xunit;
 
-namespace Moutons.Test;
+namespace Tests.GameEngine;
 
 public class GameRendererTests
 {
@@ -438,4 +438,95 @@ public class GameRendererTests
         // Assert
         Assert.IsType<DisplayBuffer>(buffer);
     }
+    [Fact]
+    public void DrawBorders_WidthOne_SetsEntireColumnToBorder()
+    {
+        // Arrange
+        DisplayBuffer buffer = new DisplayBuffer(1, 5);
+        GameRenderer renderer = new GameRenderer(1, 5);
+        Color borderColor = Color.FromArgb(123, 45, 67);
+
+        // Act
+        DisplayBuffer bordered = renderer.DrawBorders(buffer, borderColor);
+
+        // Assert
+        ImmutableDictionary<Point, Color> rendered = bordered.Render();
+        Assert.Equal(5, rendered.Count);
+
+        for (int y = 0; y < 5; y++)
+        {
+            Assert.Equal(borderColor, rendered[new Point(0, y)]);
+        }
+    }
+
+    [Fact]
+    public void DrawBorders_HeightOne_SetsEntireRowToBorder()
+    {
+        // Arrange
+        DisplayBuffer buffer = new DisplayBuffer(5, 1);
+        GameRenderer renderer = new GameRenderer(5, 1);
+        Color borderColor = Color.FromArgb(10, 20, 30);
+
+        // Act
+        DisplayBuffer bordered = renderer.DrawBorders(buffer, borderColor);
+
+        // Assert
+        ImmutableDictionary<Point, Color> rendered = bordered.Render();
+        Assert.Equal(5, rendered.Count);
+
+        for (int x = 0; x < 5; x++)
+        {
+            Assert.Equal(borderColor, rendered[new Point(x, 0)]);
+        }
+    }
+
+    [Fact]
+    public void DrawBorders_OneByOne_SetsSinglePixelToBorder()
+    {
+        // Arrange
+        DisplayBuffer buffer = new DisplayBuffer(1, 1);
+        GameRenderer renderer = new GameRenderer(1, 1);
+        Color borderColor = Color.Lime;
+
+        // Act
+        DisplayBuffer bordered = renderer.DrawBorders(buffer, borderColor);
+
+        // Assert
+        ImmutableDictionary<Point, Color> rendered = bordered.Render();
+        Assert.Single(rendered);
+        Assert.Equal(borderColor, rendered[new Point(0, 0)]);
+    }
+
+    [Fact]
+    public void Constructor_WithOneByOne_InitializesBorderColor()
+    {
+        // Arrange & Act
+        GameRenderer renderer = new GameRenderer(1, 1);
+
+        // Assert
+        ImmutableDictionary<Point, Color> rendered = renderer.Buffer.Render();
+        Assert.Single(rendered);
+        Assert.Equal(Color.FromArgb(48, 48, 48), rendered[new Point(0, 0)]);
+    }
+
+    [Fact]
+    public void Render_OnOneByOne_ReturnsWhiteAndResetsBuffer()
+    {
+        // Arrange
+        GameRenderer renderer = new GameRenderer(1, 1);
+        Point prev = new Point(0, 0);
+        Point cur = new Point(0, 0);
+
+        // Act
+        ImmutableDictionary<Point, Color> changed = renderer.Render(new GameLogic(1, 1, prev), new GameLogic(1, 1, cur));
+
+        // Assert - changed should contain the single pixel as white
+        Assert.Single(changed);
+        Assert.Equal(Color.White, changed[new Point(0, 0)]);
+
+        // Buffer must be reset after render
+        ImmutableDictionary<Point, Color> after = renderer.Buffer.Render();
+        Assert.Empty(after);
+    }
+
 }
