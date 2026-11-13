@@ -4,10 +4,13 @@ namespace Moutons.Core;
 
 public class EntityManager
 {
-    public Point SheepPosition { get; }
+   // TODO Add many sheeps
+   public Point SheepPosition { get; }
 
-    public EntityManager(Point sheepPosition)
-    {
-        SheepPosition = sheepPosition;
-    }
+   // TODO Add grass resources
+
+   public EntityManager(Point sheepPosition)
+   {
+      SheepPosition = sheepPosition;
+   }
 }

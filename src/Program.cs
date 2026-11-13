@@ -3,12 +3,13 @@ using Spectre.Console;
 
 AnsiConsole.Console.Profile.Capabilities.Unicode = false;
 
+// TODO These values should be in the Core logic, not in the UI logic.
 const int maxHealth = 100;
 const int healthBarWidth = 24;
 const int canvasWidth = 102;
 const int canvasHeight = 42;
 
-// TODO Restore logic to adapt the UI to the console size.
+// UNDONE Restore logic to adapt the UI to the console size.
 
 Layout layout = new Layout("Root")
    .SplitRows(
