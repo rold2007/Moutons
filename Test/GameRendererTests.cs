@@ -239,6 +239,23 @@ public class GameRendererTests
     }
 
     [Fact]
+    public void Render_DrawsGrassGreenAndSheepWhite()
+    {
+        // Arrange
+        GameRenderer renderer = new GameRenderer(20, 20);
+        Point sheepPosition = new Point(1, 1);
+        GameLogic gameLogic = new GameLogic(20, 20, sheepPosition);
+
+        // Act
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(gameLogic, gameLogic);
+
+        // Assert
+        Assert.Equal(10, gameLogic.GrassPositions.Length);
+        Assert.All(gameLogic.GrassPositions, position => Assert.Equal(Color.Green, rendered[position]));
+        Assert.Equal(Color.White, rendered[sheepPosition]);
+    }
+
+    [Fact]
     public void Render_UpdatesSheepPosition()
     {
         // Arrange
@@ -347,15 +364,17 @@ public class GameRendererTests
         GameRenderer renderer = new GameRenderer(20, 20);
         Point sheepPosition = new Point(0, 0);
         Point previousPosition = new Point(1, 1);
+        GameLogic currentGameLogic = CreateGameLogic(sheepPosition);
 
         // Act
-        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), CreateGameLogic(sheepPosition));
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), currentGameLogic);
 
         // Assert
         Assert.True(rendered.ContainsKey(sheepPosition));
         Assert.Equal(Color.White, rendered[sheepPosition]);
         Assert.True(rendered.ContainsKey(previousPosition));
-        Assert.Equal(Color.Black, rendered[previousPosition]);
+        Color previousPositionColor = currentGameLogic.GrassPositions.Contains(previousPosition) ? Color.Green : Color.Black;
+        Assert.Equal(previousPositionColor, rendered[previousPosition]);
     }
 
     [Fact]
@@ -365,15 +384,17 @@ public class GameRendererTests
         GameRenderer renderer = new GameRenderer(20, 20);
         Point sheepPosition = new Point(19, 19);
         Point previousPosition = new Point(0, 19);
+        GameLogic currentGameLogic = CreateGameLogic(sheepPosition);
 
         // Act
-        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), CreateGameLogic(sheepPosition));
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), currentGameLogic);
 
         // Assert
         Assert.True(rendered.ContainsKey(sheepPosition));
         Assert.Equal(Color.White, rendered[sheepPosition]);
         Assert.True(rendered.ContainsKey(previousPosition));
-        Assert.Equal(Color.Black, rendered[previousPosition]);
+        Color previousPositionColor = currentGameLogic.GrassPositions.Contains(previousPosition) ? Color.Green : Color.Black;
+        Assert.Equal(previousPositionColor, rendered[previousPosition]);
     }
 
     [Theory]
@@ -397,13 +418,15 @@ public class GameRendererTests
         GameRenderer renderer = new GameRenderer(width, height);
         Point sheepPosition = new Point(sheepX, sheepY);
         Point previousPosition = new Point(previousX, previousY);
+        GameLogic currentGameLogic = CreateGameLogic(sheepPosition);
 
         // Act
-        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), CreateGameLogic(sheepPosition));
+        ImmutableDictionary<Point, Color> rendered = renderer.Render(CreateGameLogic(previousPosition), currentGameLogic);
 
         // Assert
         Assert.Equal(Color.White, rendered[sheepPosition]);
-        Assert.Equal(Color.Black, rendered[previousPosition]);
+        Color previousPositionColor = currentGameLogic.GrassPositions.Contains(previousPosition) ? Color.Green : Color.Black;
+        Assert.Equal(previousPositionColor, rendered[previousPosition]);
     }
 
     private static GameLogic CreateGameLogic(Point position)

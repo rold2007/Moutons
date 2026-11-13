@@ -35,6 +35,28 @@ namespace Tests.Core
         }
 
         [Fact]
+        public void GrassPositions_AreTenDistinctInteriorLocationsAndPersistWhenSheepMoves()
+        {
+            // Arrange
+            var initial = new Point(1, 1);
+            var sut = new GameLogic(102, 42, initial);
+
+            // Act
+            var moved = sut.MoveSheep(Direction.Right);
+
+            // Assert
+            Assert.Equal(10, sut.GrassPositions.Length);
+            Assert.Equal(10, sut.GrassPositions.Distinct().Count());
+            Assert.All(sut.GrassPositions, position =>
+            {
+                Assert.InRange(position.X, 1, 100);
+                Assert.InRange(position.Y, 1, 40);
+                Assert.NotEqual(initial, position);
+            });
+            Assert.Equal(sut.GrassPositions, moved.GrassPositions);
+        }
+
+        [Fact]
         public void SheepPositionChanged_WhenPositionsAreSame_ReturnsFalse()
         {
             // Arrange
