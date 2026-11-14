@@ -5,13 +5,18 @@ namespace Moutons.Core;
 
 public class EntityManager
 {
-   // TODO Add many sheeps
-   public Point SheepPosition { get; }
-   public ImmutableArray<Point> GrassPositions { get; }
+    // TODO Add many sheeps
+    public ImmutableHashSet<Point> SheepPositions { get; }
+    public ImmutableHashSet<Point> GrassPositions { get; }
 
-   public EntityManager(Point sheepPosition, ImmutableArray<Point> grassPositions = default)
-   {
-      SheepPosition = sheepPosition;
-      GrassPositions = grassPositions.IsDefault ? ImmutableArray<Point>.Empty : grassPositions;
-   }
+    public EntityManager(ImmutableHashSet<Point> sheepPositions)
+        : this(sheepPositions, ImmutableHashSet<Point>.Empty)
+    {
+    }
+
+    public EntityManager(ImmutableHashSet<Point> sheepPositions, ImmutableHashSet<Point> grassPositions)
+    {
+        SheepPositions = sheepPositions;
+        GrassPositions = grassPositions;
+    }
 }

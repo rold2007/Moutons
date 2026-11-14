@@ -44,4 +44,9 @@ public class DisplayBuffer
     {
         return ChangedPixels;
     }
+
+    public DisplayBuffer Reset()
+    {
+        return new DisplayBuffer(Width, Height);
+    }
 }

@@ -19,19 +19,18 @@ public class GameLogic
    private EntityManager CurrentState { get; }
    private EntityManager PreviousState { get; }
 
-   public Point SheepPosition => CurrentState.SheepPosition;
-   public Point PreviousSheepPosition => PreviousState.SheepPosition;
-   public ImmutableArray<Point> GrassPositions => CurrentState.GrassPositions;
-   public bool SheepPositionChanged => SheepPosition != PreviousSheepPosition;
+   public ImmutableHashSet<Point> SheepPositions => CurrentState.SheepPositions;
+   public ImmutableHashSet<Point> PreviousSheepPositions => PreviousState.SheepPositions;
+   public ImmutableHashSet<Point> GrassPositions => CurrentState.GrassPositions;
+   public bool SheepPositionChanged => !SheepPositions.SetEquals(PreviousSheepPositions);
    public bool StateChanged => SheepPositionChanged;
 
-   public GameLogic(int worldWidth, int worldHeight, Point initialPosition)
+   public GameLogic(int worldWidth, int worldHeight)
    {
       this.worldWidth = worldWidth;
       this.worldHeight = worldHeight;
-      ImmutableArray<Point> grassPositions = CreateGrassPositions(worldWidth, worldHeight, initialPosition);
-      CurrentState = new EntityManager(initialPosition, grassPositions);
-      PreviousState = new EntityManager(initialPosition, grassPositions);
+      CurrentState = new EntityManager([], []);
+      PreviousState = new EntityManager([], []);
    }
 
    private GameLogic(int worldWidth, int worldHeight, EntityManager currentState, EntityManager previousState)
@@ -53,24 +52,21 @@ public class GameLogic
          _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Unsupported direction.")
       };
 
-      int newX = Math.Clamp(CurrentState.SheepPosition.X + delta.X, 1, worldWidth - 2);
-      int newY = Math.Clamp(CurrentState.SheepPosition.Y + delta.Y, 1, worldHeight - 2);
-      Point newPosition = new Point(newX, newY);
-      return new GameLogic(worldWidth, worldHeight, new EntityManager(newPosition, CurrentState.GrassPositions), CurrentState);
+      ImmutableHashSet<Point> newSheepPositions = CurrentState.SheepPositions
+         .Select(position => new Point(
+            Math.Clamp(position.X + delta.X, 1, worldWidth - 2),
+            Math.Clamp(position.Y + delta.Y, 1, worldHeight - 2)))
+         .ToImmutableHashSet();
+      return new GameLogic(worldWidth, worldHeight, new EntityManager(newSheepPositions, CurrentState.GrassPositions), CurrentState);
    }
 
-   private static ImmutableArray<Point> CreateGrassPositions(int worldWidth, int worldHeight, Point sheepPosition)
+   public GameLogic SpawnGrass(Point grassPosition)
    {
-      return [new Point(5, 5),
-         new Point(6, 5),
-         new Point(7, 5),
-         new Point(5, 6),
-         new Point(6, 6),
-         new Point(7, 6),
-         new Point(8, 6),
-         new Point(5, 7),
-         new Point(6, 7),
-         new Point(7, 7)
-         ];
+      return new GameLogic(worldWidth, worldHeight, new EntityManager(CurrentState.SheepPositions, CurrentState.GrassPositions.Add(grassPosition)), CurrentState);
+   }
+
+   public GameLogic SpawnSheep(Point point)
+   {
+      return new GameLogic(worldWidth, worldHeight, new EntityManager(CurrentState.SheepPositions.Add(point), CurrentState.GrassPositions), CurrentState);
    }
 }

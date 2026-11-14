@@ -7,63 +7,19 @@ namespace Tests.Core;
 public class EntityManagerTests
 {
     [Fact]
-    public void Constructor_WithZeroPoint_SetsSheepPosition()
+    public void Constructor_StoresSheepAndGrassPositions()
     {
         // Arrange
-        Point p = new Point(0, 0);
+        Point sheep = new Point(2, 3);
+        Point grass = new Point(4, 5);
+        var sheepPositions = System.Collections.Immutable.ImmutableHashSet.Create(sheep);
+        var grassPositions = System.Collections.Immutable.ImmutableHashSet.Create(grass);
 
         // Act
-        EntityManager manager = new EntityManager(p);
+        EntityManager manager = new EntityManager(sheepPositions, grassPositions);
 
         // Assert
-        Assert.Equal(p, manager.SheepPosition);
-    }
-
-    [Fact]
-    public void Constructor_WithNegativeCoordinates_SetsSheepPosition()
-    {
-        // Arrange
-        Point p = new Point(-5, -10);
-
-        // Act
-        EntityManager manager = new EntityManager(p);
-
-        // Assert
-        Assert.Equal(-5, manager.SheepPosition.X);
-        Assert.Equal(-10, manager.SheepPosition.Y);
-    }
-
-    [Fact]
-    public void Constructor_CopiesValue_NotReference()
-    {
-        // Arrange
-        Point original = new Point(3, 4);
-
-        // Act
-        EntityManager manager = new EntityManager(original);
-        // Mutate original after construction
-        original.X = 99;
-        original.Y = 100;
-
-        // Assert - manager should keep the original values (struct copy semantics)
-        Assert.Equal(3, manager.SheepPosition.X);
-        Assert.Equal(4, manager.SheepPosition.Y);
-    }
-
-    [Theory]
-    [InlineData(1, 2)]
-    [InlineData(100, 200)]
-    [InlineData(int.MaxValue, int.MinValue)]
-    public void Constructor_WithVariousPoints_SetsSheepPosition(int x, int y)
-    {
-        // Arrange
-        Point p = new Point(x, y);
-
-        // Act
-        EntityManager manager = new EntityManager(p);
-
-        // Assert
-        Assert.Equal(x, manager.SheepPosition.X);
-        Assert.Equal(y, manager.SheepPosition.Y);
+        Assert.Equal(sheepPositions, manager.SheepPositions);
+        Assert.Equal(grassPositions, manager.GrassPositions);
     }
 }

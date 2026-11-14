@@ -36,20 +36,44 @@ public class GameRenderer
 
    public ImmutableDictionary<System.Drawing.Point, Color> Render(GameLogic previousGameLogic, GameLogic currentGameLogic)
    {
-      // TODO Simplify this logic.
-      Buffer = Buffer.SetPixel(previousGameLogic.SheepPosition, Color.Black);
+      ImmutableHashSet<Point> newSheepPositions = currentGameLogic.SheepPositions.Except(previousGameLogic.SheepPositions);
+      ImmutableHashSet<Point> newGrassPositions = currentGameLogic.GrassPositions.Except(previousGameLogic.GrassPositions);
 
-      foreach (System.Drawing.Point grassPosition in currentGameLogic.GrassPositions)
+      newGrassPositions = newGrassPositions.Except(currentGameLogic.SheepPositions);
+
+      if (!newSheepPositions.IsEmpty || !newGrassPositions.IsEmpty)
       {
-         Buffer = Buffer.SetPixel(grassPosition, Color.Green);
+         ImmutableHashSet<Point> oldSheepPositions = previousGameLogic.SheepPositions.Except(currentGameLogic.SheepPositions);
+
+         foreach (Point oldSheepPosition in oldSheepPositions)
+         {
+            if (currentGameLogic.GrassPositions.Contains(oldSheepPosition))
+            {
+               Buffer = Buffer.SetPixel(oldSheepPosition, Color.Green);
+            }
+            else
+            {
+               Buffer = Buffer.SetPixel(oldSheepPosition, Color.Black);
+            }
+         }
+
+         foreach (Point newGrassPosition in newGrassPositions)
+         {
+            Buffer = Buffer.SetPixel(newGrassPosition, Color.Green);
+         }
+
+         foreach (Point newSheepPosition in newSheepPositions)
+         {
+            Buffer = Buffer.SetPixel(newSheepPosition, Color.White);
+         }
+
+         ImmutableDictionary<System.Drawing.Point, Color> changedPixels = Buffer.Render();
+
+         Buffer = Buffer.Reset();
+
+         return changedPixels;
       }
 
-      Buffer = Buffer.SetPixel(currentGameLogic.SheepPosition, Color.White);
-
-      ImmutableDictionary<System.Drawing.Point, Color> changedPixels = Buffer.Render();
-
-      Buffer = new DisplayBuffer(Buffer.Width, Buffer.Height);
-
-      return changedPixels;
+      return [];
    }
 }
